@@ -1,0 +1,73 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "RawInputLight/1.0.0": {
+        "dependencies": {
+          "Microsoft.Net.Compilers.Toolset": "4.1.0-1.final",
+          "Microsoft.Windows.CsWin32": "0.1.619-beta"
+        },
+        "runtime": {
+          "RawInputLight.dll": {}
+        }
+      },
+      "Microsoft.Net.Compilers.Toolset/4.1.0-1.final": {},
+      "Microsoft.Windows.CsWin32/0.1.619-beta": {
+        "dependencies": {
+          "Microsoft.Windows.SDK.Win32Docs": "0.1.7-alpha",
+          "Microsoft.Windows.SDK.Win32Metadata": "15.0.2-preview",
+          "System.Memory": "4.5.4"
+        }
+      },
+      "Microsoft.Windows.SDK.Win32Docs/0.1.7-alpha": {},
+      "Microsoft.Windows.SDK.Win32Metadata/15.0.2-preview": {},
+      "System.Memory/4.5.4": {}
+    }
+  },
+  "libraries": {
+    "RawInputLight/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Net.Compilers.Toolset/4.1.0-1.final": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-P+7xgcflpCskf+J5iuZFaA7jhtQb1pWrWrNMNiObbkedBhJ+Ea8z23xfStADRZw591X89e4nZqNzKnvhF3jasw==",
+      "path": "microsoft.net.compilers.toolset/4.1.0-1.final",
+      "hashPath": "microsoft.net.compilers.toolset.4.1.0-1.final.nupkg.sha512"
+    },
+    "Microsoft.Windows.CsWin32/0.1.619-beta": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Wl0qXeAcgwxyDnWuL7bwYleuUqpayiH3y2y1a+NZezo9sYtdMBWMjQ4OcixtVAwhs2bKy1KjXsGr0p6hkHGTXg==",
+      "path": "microsoft.windows.cswin32/0.1.619-beta",
+      "hashPath": "microsoft.windows.cswin32.0.1.619-beta.nupkg.sha512"
+    },
+    "Microsoft.Windows.SDK.Win32Docs/0.1.7-alpha": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+8ygOfBME88Sq75zMopFfqCdxBxZoKDlizPK6iYxzSGf6j51rd9ISNJ20UKfOSr746tgn9GNyVI+jc0JXfnuZA==",
+      "path": "microsoft.windows.sdk.win32docs/0.1.7-alpha",
+      "hashPath": "microsoft.windows.sdk.win32docs.0.1.7-alpha.nupkg.sha512"
+    },
+    "Microsoft.Windows.SDK.Win32Metadata/15.0.2-preview": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Vi6gTxz5RW8KGeQf8s25aia27BjB2VN550+myICgTRkr/001ARa/utFZI7Exm66cHPSKfCYvGlRzhNKDlXMo3g==",
+      "path": "microsoft.windows.sdk.win32metadata/15.0.2-preview",
+      "hashPath": "microsoft.windows.sdk.win32metadata.15.0.2-preview.nupkg.sha512"
+    },
+    "System.Memory/4.5.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-1MbJTHS1lZ4bS4FmsJjnuGJOu88ZzTT2rLvrhW7Ygic+pC0NWA+3hgAen0HRdsocuQXCkUTdFn9yHJJhsijDXw==",
+      "path": "system.memory/4.5.4",
+      "hashPath": "system.memory.4.5.4.nupkg.sha512"
+    }
+  }
+}

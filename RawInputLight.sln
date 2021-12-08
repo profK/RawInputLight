@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawInputLight", "RawInputLight\RawInputLight.csproj", "{28D7C073-E67E-44E4-8B8E-B811C1E72956}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{28D7C073-E67E-44E4-8B8E-B811C1E72956}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28D7C073-E67E-44E4-8B8E-B811C1E72956}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28D7C073-E67E-44E4-8B8E-B811C1E72956}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28D7C073-E67E-44E4-8B8E-B811C1E72956}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
