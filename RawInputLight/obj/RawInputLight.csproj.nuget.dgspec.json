@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\source\\repos\\Rider\\RawInputLight\\RawInputLight\\RawInputLight\\RawInputLight.csproj": {}
+    "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj": {}
   },
   "projects": {
-    "D:\\source\\repos\\Rider\\RawInputLight\\RawInputLight\\RawInputLight\\RawInputLight.csproj": {
+    "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\source\\repos\\Rider\\RawInputLight\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
+        "projectUniqueName": "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
         "projectName": "RawInputLight",
-        "projectPath": "D:\\source\\repos\\Rider\\RawInputLight\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
+        "projectPath": "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
         "packagesPath": "C:\\Users\\jpkessel\\.nuget\\packages\\",
-        "outputPath": "D:\\source\\repos\\Rider\\RawInputLight\\RawInputLight\\RawInputLight\\obj\\",
+        "outputPath": "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -19,7 +19,7 @@
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "U:\\pchome\\.pcprefsBAD\\AppData\\NuGet\\NuGet.Config",
+          "C:\\Users\\jpkessel\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
@@ -29,8 +29,10 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "U:\\Personal\\GitHub\\WebGL.NET\\src\\packages": {},
-          "https://api.nuget.org/v3/index.json": {}
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "C:\\Users\\jpkessel\\AppData\\Local\\Stride\\NugetDev": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://packages.stride3d.net/nuget": {}
         },
         "frameworks": {
           "net6.0": {
