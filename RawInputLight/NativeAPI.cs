@@ -18,9 +18,43 @@ public static class NativeAPI
 
         fixed (RAWINPUTDEVICE* devPtr = device)
         {
-            return PInvoke.RegisterRawInputDevices(devPtr,
-                1, (uint) sizeof(RAWINPUTDEVICE));
+            if (PInvoke.RegisterRawInputDevices(devPtr,
+                    1, (uint) sizeof(RAWINPUTDEVICE)))
+            {
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("Error registering raw device: "+GetLastError());
+                return false;
+            }
         }
+    }
+
+    public static void RunApplication(HWND_WRAPPER hwndWrapper)
+    {
+        new Thread(MessagePump).Start(hwndWrapper);
+    }
+
+    [STAThread]
+    private static async void MessagePump(object hwndWrapperObj)
+    {
+        HWND_WRAPPER hwndWrapper = (HWND_WRAPPER) hwndWrapperObj; 
+        MSG msg;
+        switch (GetMessage(out msg, hwndWrapper.hwnd, 0, 0))
+        {
+            case -1: //error
+                Console.WriteLine("Message Pump Error: " + GetLastError());
+                break;
+            case 0: //quit
+                //do quit
+                break;
+            default:
+                TranslateMessage(ref msg);
+                DispatchMessage(ref msg);
+                break;
+        
+        } 
     }
 
     public static unsafe HWND_WRAPPER OpenWindow()
@@ -41,17 +75,20 @@ public static class NativeAPI
                 var windownameStr = new PCWSTR(p2);
                 var hwnd = PInvoke.CreateWindowEx(0, classnameStr, windownameStr,
                     WINDOW_STYLE.WS_OVERLAPPEDWINDOW,
-                    800, 800, 800, 600, new HWND(0), new HMENU(IntPtr.Zero),
+                    0, 0, 800, 600, new HWND(0), new HMENU(IntPtr.Zero),
                     windowClass.hInstance, null);
-                PInvoke.ShowWindow(hwnd, 0);
+               
                 if (hwnd.Value == IntPtr.Zero)
                     throw new Exception("Opening window failed: " +
                                         GetLastError());
-
+                PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_NORMAL);
                 return new HWND_WRAPPER(hwnd);
             }
         }
     }
+
+    
+    
 
     //seem to need to add these manually
     [DllImport("kernel32.dll")]
@@ -60,6 +97,52 @@ public static class NativeAPI
     [DllImport("user32.dll")]
     private static extern IntPtr DefWindowProc(IntPtr hWnd, uint uMsg, WPARAM wParam, LPARAM lParam);
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT
+    {
+        public int X;
+        public int Y;
+
+        public POINT(int x, int y)
+        {
+            this.X = x;
+            this.Y = y;
+        }
+
+        public static implicit operator System.Drawing.Point(POINT p)
+        {
+            return new System.Drawing.Point(p.X, p.Y);
+        }
+
+        public static implicit operator POINT(System.Drawing.Point p)
+        {
+            return new POINT(p.X, p.Y);
+        }
+    } 
+    
+    [StructLayout(LayoutKind.Sequential)]
+
+    public struct MSG
+    {
+        public IntPtr hwnd;
+        public uint message;
+        public UIntPtr wParam;
+        public IntPtr lParam;
+        public int time;
+        public POINT pt;
+        public int lPrivate;
+    }
+    
+    [DllImport("user32.dll")]
+    static extern int GetMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin,
+        uint wMsgFilterMax);
+    
+    [DllImport("user32.dll")]
+    static extern bool TranslateMessage([In] ref MSG lpMsg);
+    
+    [DllImport("user32.dll")]
+    static extern IntPtr DispatchMessage([In] ref MSG lpmsg);
+    
     private static unsafe LRESULT LpfnWndProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam)
     {
         Console.WriteLine("Recvd Message: "+(WindowsMessages)uMsg);
