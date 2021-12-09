@@ -45,16 +45,10 @@ public static class NativeAPI
             }
         }
     }
-
-    public static void RunApplication(HWND_WRAPPER hwndWrapper)
+    
+    public static void MessagePump(HWND_WRAPPER hwndWrapper)
     {
-        new Thread(MessagePump).Start(hwndWrapper);
-    }
-
-    [STAThread]
-    private static async void MessagePump(object hwndWrapperObj)
-    {
-        HWND_WRAPPER hwndWrapper = (HWND_WRAPPER) hwndWrapperObj; 
+     
         MSG msg;
         bool done = false;
         do
@@ -69,6 +63,7 @@ public static class NativeAPI
                     done = true;
                     break;
                 default:
+                   // Console.WriteLine("Pumping message: "+(WindowsMessages)msg.message);
                     TranslateMessage(ref msg);
                     DispatchMessage(ref msg);
                     break;
@@ -171,6 +166,7 @@ public static class NativeAPI
         {
             case 0x00F: //WM_INPUT: dsfs
             {
+                Console.WriteLine("Processing input message");
                 uint dwSize;
 
                 PInvoke.GetRawInputData(new HRAWINPUT(lParam), RAW_INPUT_DATA_COMMAND_FLAGS.RID_INPUT,
@@ -199,6 +195,7 @@ public static class NativeAPI
                 return new LRESULT(0);
             }
             default:
+                Console.WriteLine("Default windproc proceessing");
                 return new LRESULT(DefWindowProc(hWnd, uMsg, wParam, lParam));
         }
     }
