@@ -1,5 +1,13 @@
-﻿RegisterRawInputDevices
+﻿GetLastError
+RegisterRawInputDevices
 CreateWindowEx
 RegisterClass
 GetModuleHandle
+ShowWindow
+GetRawInputData
+DefWindowProc
+RAWINPUTHEADER
+RAWINPUT
+RIM_TYPEKEYBOARD
+
 
