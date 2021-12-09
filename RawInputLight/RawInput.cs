@@ -17,9 +17,13 @@ public class RawInput
 
     public RawInput(HWND windowHandle)
     {
-        NativeAPI.RegisterInputDevice(windowHandle, GenericDesktopPage, GenericMouse);
-        NativeAPI.RegisterInputDevice(windowHandle, GenericDesktopPage, GenericJoystick);
-        NativeAPI.RegisterInputDevice(windowHandle, GenericDesktopPage, GenericGamepad);
-        NativeAPI.RegisterInputDevice(windowHandle, GenericDesktopPage, GenericKeyboard);
+        NativeAPI.RegisterInputDevices(windowHandle, new NativeAPI.HID_DEV_ID[]
+        {
+            new NativeAPI.HID_DEV_ID(GenericDesktopPage, GenericMouse),
+            new NativeAPI.HID_DEV_ID(GenericDesktopPage, GenericGamepad),
+            new NativeAPI.HID_DEV_ID(GenericDesktopPage, GenericJoystick),
+            new NativeAPI.HID_DEV_ID(GenericDesktopPage, GenericKeyboard)
+        });
+        
     }
 }

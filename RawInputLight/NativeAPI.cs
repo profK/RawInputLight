@@ -9,17 +9,32 @@ namespace RawInputLight;
 
 public static class NativeAPI
 {
-    public static unsafe bool RegisterInputDevice(HWND windowHandle, ushort usagePage, ushort usage)
+    public struct HID_DEV_ID
     {
-        RAWINPUTDEVICE[] device = {new()};
-        device[0].usUsagePage = usagePage;
-        device[0].usUsage = usage;
-        device[0].hwndTarget = windowHandle;
+        public ushort page;
+        public ushort usage;
 
-        fixed (RAWINPUTDEVICE* devPtr = device)
+        public HID_DEV_ID(ushort p,ushort u)
+        {
+            page = p;
+            usage = u;
+        }
+    }
+    public static unsafe bool RegisterInputDevices(HWND windowHandle, HID_DEV_ID[] devices)
+    {
+        RAWINPUTDEVICE[] rawDevices = new RAWINPUTDEVICE[devices.Length];
+        for (int i = 0; i < rawDevices.Length; i++)
+        {
+
+            rawDevices[i].usUsagePage = devices[i].page;
+            rawDevices[i].usUsage = devices[i].usage;
+            rawDevices[i].hwndTarget = windowHandle;
+        }
+        
+        fixed (RAWINPUTDEVICE* devPtr = rawDevices)
         {
             if (PInvoke.RegisterRawInputDevices(devPtr,
-                    1, (uint) sizeof(RAWINPUTDEVICE)))
+                    (uint)rawDevices.Length, (uint) sizeof(RAWINPUTDEVICE)))
             {
                 return true;
             }
@@ -41,20 +56,26 @@ public static class NativeAPI
     {
         HWND_WRAPPER hwndWrapper = (HWND_WRAPPER) hwndWrapperObj; 
         MSG msg;
-        switch (GetMessage(out msg, hwndWrapper.hwnd, 0, 0))
+        bool done = false;
+        do
         {
-            case -1: //error
-                Console.WriteLine("Message Pump Error: " + GetLastError());
-                break;
-            case 0: //quit
-                //do quit
-                break;
-            default:
-                TranslateMessage(ref msg);
-                DispatchMessage(ref msg);
-                break;
-        
-        } 
+            int result = GetMessage(out msg, hwndWrapper.hwnd, 0, 0);
+            switch (result)
+            {
+                case -1: //error
+                    Console.WriteLine("Message Pump Error: " + GetLastError());
+                    break;
+                case 0: //quit
+                    done = true;
+                    break;
+                default:
+                    TranslateMessage(ref msg);
+                    DispatchMessage(ref msg);
+                    break;
+            }
+
+        } while (!done) ;
+
     }
 
     public static unsafe HWND_WRAPPER OpenWindow()
@@ -145,7 +166,7 @@ public static class NativeAPI
     
     private static unsafe LRESULT LpfnWndProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam)
     {
-        Console.WriteLine("Recvd Message: "+(WindowsMessages)uMsg);
+        //Console.WriteLine("Recvd Message: "+(WindowsMessages)uMsg);
         switch (uMsg)
         {
             case 0x00F: //WM_INPUT: dsfs
