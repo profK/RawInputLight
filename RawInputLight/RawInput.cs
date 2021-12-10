@@ -10,8 +10,6 @@ public class RawInput
     private const ushort GenericJoystick = 0x04;
     private const ushort GenericGamepad = 0x05;
     private const ushort GenericKeyboard = 0x06;
-    
-   
 
     public Action<ushort, KeyState> KeyStateChangeEvent;
     public Action<int, int, uint,int> MouseStateChangeEvent; 
