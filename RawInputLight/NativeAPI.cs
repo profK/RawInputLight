@@ -161,14 +161,21 @@ public static class NativeAPI
     
     private static unsafe LRESULT LpfnWndProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam)
     {
+        
         //Console.WriteLine("Recvd Message: "+(WindowsMessages)uMsg);
         switch (uMsg)
         {
-            case 0x00F: //WM_INPUT: dsfs
+            case 0x00FF: //WM_INPUT: dsfs
             {
-                Console.WriteLine("Processing input message");
+                //Console.WriteLine("Processing input message");
                 uint dwSize;
+                
+                if (lParam == 0)
+                {
+                    return new LRESULT(0);
+                }
 
+                
                 PInvoke.GetRawInputData(new HRAWINPUT(lParam), RAW_INPUT_DATA_COMMAND_FLAGS.RID_INPUT,
                     IntPtr.Zero.ToPointer(), &dwSize, (uint) sizeof(RAWINPUTHEADER));
 
@@ -195,7 +202,7 @@ public static class NativeAPI
                 return new LRESULT(0);
             }
             default:
-                Console.WriteLine("Default windproc proceessing");
+                //Console.WriteLine("Default windproc proceessing");
                 return new LRESULT(DefWindowProc(hWnd, uMsg, wParam, lParam));
         }
     }
