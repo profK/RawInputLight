@@ -10,7 +10,7 @@ namespace RawInputLight;
 public static class NativeAPI
 {
     public static Action<ushort, KeyState> KeyListeners;
-    public static Action<int, int, int, uint> MouseStateListeners; 
+    public static Action<int, int, uint,int> MouseStateListeners; 
     public struct HID_DEV_ID
     {
         public ushort page;
@@ -213,7 +213,8 @@ public static class NativeAPI
                 else if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEMOUSE)
                 {
                     MouseStateListeners?.Invoke(raw->data.mouse.lLastX,
-                        raw->data.mouse.lLastY, 0, raw->data.mouse.ulRawButtons);
+                        raw->data.mouse.lLastY, raw->data.mouse.Anonymous.Anonymous.usButtonFlags,
+                        raw->data.mouse.Anonymous.Anonymous.usButtonData);
                 }
 
                 Marshal.FreeHGlobal(lpb);
