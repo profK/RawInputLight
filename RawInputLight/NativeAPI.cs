@@ -9,6 +9,8 @@ namespace RawInputLight;
 
 public static class NativeAPI
 {
+    public static Action<ushort, KeyState> KeyListeners;
+    public static Action<int, int, int, uint> MouseStateListeners; 
     public struct HID_DEV_ID
     {
         public ushort page;
@@ -29,6 +31,7 @@ public static class NativeAPI
             rawDevices[i].usUsagePage = devices[i].page;
             rawDevices[i].usUsage = devices[i].usage;
             rawDevices[i].hwndTarget = windowHandle;
+            rawDevices[i].dwFlags = RAWINPUTDEVICE_FLAGS.RIDEV_INPUTSINK;
         }
         
         fixed (RAWINPUTDEVICE* devPtr = rawDevices)
@@ -98,6 +101,7 @@ public static class NativeAPI
                     throw new Exception("Opening window failed: " +
                                         GetLastError());
                 PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_NORMAL);
+                //PInvoke.SetCapture(hwnd);
                 return new HWND_WRAPPER(hwnd);
             }
         }
@@ -170,6 +174,7 @@ public static class NativeAPI
                 if (wParam != 0) return new LRESULT(0);
                 break;
             }
+            
             case (uint)WindowsMessages.WM_INPUT: //WM_INPUT: dsfs
             {
                 //Console.WriteLine("Processing input message");
@@ -194,14 +199,23 @@ public static class NativeAPI
                 var raw = (RAWINPUT*) lpb;
 
                 if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEKEYBOARD)
-                    Console.WriteLine(" Kbd: make={0} Flags:{1} Reserved:{2} ExtraInformation:{3}, msg={4} VK={5}",
-                        raw->data.keyboard.MakeCode, raw->data.keyboard.Flags, raw->data.keyboard.Reserved,
-                        raw->data.keyboard.ExtraInformation, raw->data.keyboard.Message, raw->data.keyboard.VKey);
+                {
+                    switch (raw->data.keyboard.Message)
+                    {
+                        case (int) WindowsMessages.WM_KEYDOWN:
+                            KeyListeners?.Invoke(raw->data.keyboard.VKey, KeyState.KeyDown);
+                            break;
+                        case (int) WindowsMessages.WM_KEYUP:
+                            KeyListeners?.Invoke(raw->data.keyboard.VKey, KeyState.KeyUp);
+                            break;
+                    }
+                } 
                 else if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEMOUSE)
-                    Console.WriteLine("Mouse: usFlags={0} ulButtons={1} usButtonFlags={2} usButtonData={3} " +
-                                      "ulRawButtons={4} lLastX={5} lLastY={6} ulExtraInformation={7}",
-                        raw->data.mouse.usFlags, 0, 0, 0, raw->data.mouse.ulRawButtons, raw->data.mouse.lLastX,
-                        raw->data.mouse.lLastY, raw->data.mouse.ulExtraInformation);
+                {
+                    MouseStateListeners?.Invoke(raw->data.mouse.lLastX,
+                        raw->data.mouse.lLastY, 0, raw->data.mouse.ulRawButtons);
+                }
+
                 Marshal.FreeHGlobal(lpb);
 
                 return new LRESULT(0);
