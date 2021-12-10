@@ -1,0 +1,3 @@
+﻿CreateFile
+FILE_SHARE_FLAGS
+CloseHandleSafeHandle
