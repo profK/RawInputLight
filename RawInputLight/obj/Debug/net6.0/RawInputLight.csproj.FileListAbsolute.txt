@@ -10,3 +10,15 @@ D:\source\repos\Rider\RawInputLight\RawInputLight\RawInputLight\bin\Debug\net6.0
 D:\source\repos\Rider\RawInputLight\RawInputLight\RawInputLight\obj\Debug\net6.0\RawInputLight.dll
 D:\source\repos\Rider\RawInputLight\RawInputLight\RawInputLight\obj\Debug\net6.0\ref\RawInputLight.dll
 D:\source\repos\Rider\RawInputLight\RawInputLight\RawInputLight\obj\Debug\net6.0\RawInputLight.pdb
+D:\projects\RiderProjects\RawInputLight\RawInputLight\obj\Debug\net6.0\RawInputLight.csproj.AssemblyReference.cache
+D:\projects\RiderProjects\RawInputLight\RawInputLight\obj\Debug\net6.0\RawInputLight.GeneratedMSBuildEditorConfig.editorconfig
+D:\projects\RiderProjects\RawInputLight\RawInputLight\obj\Debug\net6.0\RawInputLight.AssemblyInfoInputs.cache
+D:\projects\RiderProjects\RawInputLight\RawInputLight\obj\Debug\net6.0\RawInputLight.AssemblyInfo.cs
+D:\projects\RiderProjects\RawInputLight\RawInputLight\obj\Debug\net6.0\RawInputLight.csproj.CoreCompileInputs.cache
+D:\projects\RiderProjects\RawInputLight\RawInputLight\bin\Debug\net6.0\RawInputLight.deps.json
+D:\projects\RiderProjects\RawInputLight\RawInputLight\bin\Debug\net6.0\RawInputLight.dll
+D:\projects\RiderProjects\RawInputLight\RawInputLight\bin\Debug\net6.0\ref\RawInputLight.dll
+D:\projects\RiderProjects\RawInputLight\RawInputLight\bin\Debug\net6.0\RawInputLight.pdb
+D:\projects\RiderProjects\RawInputLight\RawInputLight\obj\Debug\net6.0\RawInputLight.dll
+D:\projects\RiderProjects\RawInputLight\RawInputLight\obj\Debug\net6.0\ref\RawInputLight.dll
+D:\projects\RiderProjects\RawInputLight\RawInputLight\obj\Debug\net6.0\RawInputLight.pdb

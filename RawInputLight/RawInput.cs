@@ -1,21 +1,29 @@
-﻿using System.Runtime.InteropServices;
-using System.Security.Principal;
-using Windows.Win32;
-using Windows.Win32.Storage.FileSystem;
+﻿using Windows.Win32.Foundation;
 
-namespace RawInputLight
+namespace RawInputLight;
+
+public class RawInput
 {
-    public  class RawInput
+    private const ushort GenericDesktopPage = 0x01;
+    private const ushort GenericMouse = 0x02;
+    private const ushort GenericJoystick = 0x04;
+    private const ushort GenericGamepad = 0x05;
+    private const ushort GenericKeyboard = 0x06;
+
+    public RawInput(NativeAPI.HWND_WRAPPER wrapper) : this(wrapper.hwnd)
     {
-        private void Foo()
+        //nop
+    }
+
+    public RawInput(HWND windowHandle)
+    {
+        NativeAPI.RegisterInputDevices(windowHandle, new NativeAPI.HID_DEV_ID[]
         {
-            using SafeHandle handle = PInvoke.CreateFile("text.txt", 
-                FILE_ACCESS_FLAGS.FILE_ADD_FILE, 
-                FILE_SHARE_FLAGS.FILE_SHARE_WRITE, 
-                null,
-                FILE_CREATE_FLAGS.CREATE_ALWAYS, 
-                FILE_FLAGS_AND_ATTRIBUTES.FILE_ATTRIBUTE_ARCHIVE, 
-                CloseHandleSafeHandle.Null);
-        }
+            new NativeAPI.HID_DEV_ID(GenericDesktopPage, GenericMouse),
+            new NativeAPI.HID_DEV_ID(GenericDesktopPage, GenericGamepad),
+            new NativeAPI.HID_DEV_ID(GenericDesktopPage, GenericJoystick),
+            new NativeAPI.HID_DEV_ID(GenericDesktopPage, GenericKeyboard)
+        });
+        
     }
 }

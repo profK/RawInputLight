@@ -1,3 +1,14 @@
-﻿CreateFile
-FILE_SHARE_FLAGS
-CloseHandleSafeHandle
+﻿GetLastError
+RegisterRawInputDevices
+CreateWindowEx
+RegisterClass
+GetModuleHandle
+ShowWindow
+GetRawInputData
+RAWINPUTHEADER
+RAWINPUT
+
+
+
+
+
