@@ -86,12 +86,12 @@ public static class NativeAPI
             var result = PInvoke.RegisterClass(windowClass);
             if (result == 0) throw new Exception("Registering window class failed");
 
-            fixed (char* p2 = "RAWINPUTWINDOW")
+            fixed (char* p2 = "")
             {
                 var windownameStr = new PCWSTR(p2);
                 var hwnd = PInvoke.CreateWindowEx(0, classnameStr, windownameStr,
-                    WINDOW_STYLE.WS_OVERLAPPEDWINDOW,
-                    0, 0, 800, 600, new HWND(0), new HMENU(IntPtr.Zero),
+                    0,
+                    0, 0, 0, 0, new HWND(0), new HMENU(IntPtr.Zero),
                     windowClass.hInstance, null);
                
                 if (hwnd.Value == IntPtr.Zero)
@@ -165,7 +165,12 @@ public static class NativeAPI
         //Console.WriteLine("Recvd Message: "+(WindowsMessages)uMsg);
         switch (uMsg)
         {
-            case 0x00FF: //WM_INPUT: dsfs
+            case (uint)WindowsMessages.WM_NCCALCSIZE:
+            {
+                if (wParam != 0) return new LRESULT(0);
+                break;
+            }
+            case (uint)WindowsMessages.WM_INPUT: //WM_INPUT: dsfs
             {
                 //Console.WriteLine("Processing input message");
                 uint dwSize;
@@ -205,6 +210,8 @@ public static class NativeAPI
                 //Console.WriteLine("Default windproc proceessing");
                 return new LRESULT(DefWindowProc(hWnd, uMsg, wParam, lParam));
         }
+
+        return new LRESULT(0);
     }
 
     public struct HWND_WRAPPER
