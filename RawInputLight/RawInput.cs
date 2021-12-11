@@ -14,7 +14,7 @@ public class RawInput
     public Action<ushort, KeyState> KeyStateChangeEvent;
     public Action<int, int, uint,int> MouseStateChangeEvent; 
     public Action<uint,bool[]> ButtonDownEvent;
-    public Action<uint, uint[]> AxisEvent;
+    public Action<uint[], uint[]> AxisEvent;
 
     public RawInput(NativeAPI.HWND_WRAPPER wrapper) : this(wrapper.hwnd)
     {

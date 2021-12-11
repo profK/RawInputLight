@@ -32,7 +32,7 @@ internal class Program
             Console.Write("Axes: ");
             for (int i = 0; i < values.Length; i++)
             {
-                Console.Write((HIDDesktopUsages) (i + usageBase) + ":");
+                Console.Write((HIDDesktopUsages) (usageBase[i]) + ":");
                 Console.Write(values[i]+" ");
             }
 
