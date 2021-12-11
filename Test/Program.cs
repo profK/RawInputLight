@@ -21,7 +21,7 @@ internal class Program
             {
                 if (buttons[i])
                 {
-                    Console.WriteLine((HIDDesktopUsages) (i + usageBase) + " ");
+                    Console.Write((HIDDesktopUsages) (i + usageBase) + " ");
                 }
             }
 

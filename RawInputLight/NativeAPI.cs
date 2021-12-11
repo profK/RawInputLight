@@ -297,7 +297,7 @@ public static class NativeAPI
         }
         //process usages
         bool[] usageStates = new bool[numUsages]; // total length
-        Array.Fill(usageStates,false);
+        Array.Fill(usageStates,false,0,(int) numUsages);
         for (int i = 0; i < reportedUsages; i++)
         {
             ushort* ushortPtr = (ushort *)
