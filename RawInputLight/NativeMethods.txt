@@ -13,6 +13,7 @@ HIDP_BUTTON_CAPS
 HidP_GetButtonCaps
 HidP_GetValueCaps
 HidP_GetUsages
+HidP_GetUsageValue
 
 
 

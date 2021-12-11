@@ -14,6 +14,7 @@ public static class NativeAPI
     public static Action<ushort, KeyState> KeyListeners;
     public static Action<int, int, uint,int> MouseStateListeners;
     public static Action<uint,bool[]> ButtonDownListeners;
+    public static Action<uint,uint[]> AxisListeners;
     
     public struct HID_DEV_ID
     {
@@ -189,7 +190,6 @@ public static class NativeAPI
                     return new LRESULT(0);
                 }
 
-                
                 PInvoke.GetRawInputData(new HRAWINPUT(lParam), RAW_INPUT_DATA_COMMAND_FLAGS.RID_INPUT,
                     IntPtr.Zero.ToPointer(), &dwSize, (uint) sizeof(RAWINPUTHEADER));
 
@@ -306,11 +306,58 @@ public static class NativeAPI
             usageStates[usage-pButtonCaps->Anonymous.Range.UsageMin] = true;
         }
 
-        uint compositeUsage = ((uint)pButtonCaps->UsagePage << 16) | 
+        var compositeUsage = ((uint)pButtonCaps->UsagePage << 16) | 
                      pButtonCaps->Anonymous.Range.UsageMin;
         ButtonDownListeners?.Invoke(compositeUsage,
             usageStates);
+        //get value caps
+        var valueCapsPtr = Marshal.AllocHGlobal(
+            sizeof(HIDP_VALUE_CAPS) * hcaps.NumberInputValueCaps);
+        ushort valueCapsLength=hcaps.NumberInputValueCaps;
+        HIDP_VALUE_CAPS* pValueCaps = (HIDP_VALUE_CAPS*) valueCapsPtr.ToPointer();
+        PInvoke.HidP_GetValueCaps(HIDP_REPORT_TYPE.HidP_Input,
+            pValueCaps, 
+            ref valueCapsLength,
+            (nint) pPreparsedDataBuffer.ToInt64());
+        //get values
+        uint[] values = new uint[valueCapsLength];
+        if (pValueCaps->IsRange.Value!=0)
+        {
+            usageMin = (uint) (pValueCaps->Anonymous.Range.UsageMin & 0x00FF);
+            usageMax = (uint) (pValueCaps->Anonymous.Range.UsageMax & 0x00FF);
+            numUsages = (usageMax - usageMin)+1;
+        }
+        else
+        {
+            usageMin = pValueCaps->Anonymous.NotRange.Usage;
+            usageMax = usageMin;
+            numUsages = 1;
+        }
+        fixed (byte* report = &(raw->data.hid.bRawData[0]))
+        {
+            for (int i = 0; i< valueCapsLength; i++)
+            {
+                HIDP_VALUE_CAPS* vcapPtr =
+                    (HIDP_VALUE_CAPS*)IntPtr.Add(valueCapsPtr,
+                        i * sizeof(HIDP_VALUE_CAPS)).ToPointer();
+                PInvoke.HidP_GetUsageValue(
+                    HIDP_REPORT_TYPE.HidP_Input, pValueCaps->UsagePage, 0, 
+                    (ushort)(usageMin+i),out values[i],
+                    (nint) (pPreparsedDataBuffer.ToPointer()),
+                    new PSTR(report), raw->data.hid.dwSizeHid);
+            }
+        }
+
+       
+        // process values
+        
+
+        
+        compositeUsage = ((uint) pValueCaps->UsagePage << 16) | 
+                              pValueCaps->Anonymous.Range.UsageMin;
+        AxisListeners?.Invoke(compositeUsage, values);
         // free buffers
+        Marshal.FreeHGlobal(valueCapsPtr);
         Marshal.FreeHGlobal(usagesPtr);
         Marshal.FreeHGlobal(buttonCapsPtr);
         Marshal.FreeHGlobal(pPreparsedDataBuffer);

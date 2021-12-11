@@ -27,7 +27,17 @@ internal class Program
 
             Console.WriteLine();
         };
-            
+        rawInput.AxisEvent +=(usageBase, values) => 
+        {
+            Console.Write("Axes: ");
+            for (int i = 0; i < values.Length; i++)
+            {
+                Console.Write((HIDDesktopUsages) (i + usageBase) + ":");
+                Console.Write(values[i]+" ");
+            }
+
+            Console.WriteLine();
+        };    
         NativeAPI.MessagePump(wrapper);
        
     }

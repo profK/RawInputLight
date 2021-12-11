@@ -13,7 +13,8 @@ public class RawInput
 
     public Action<ushort, KeyState> KeyStateChangeEvent;
     public Action<int, int, uint,int> MouseStateChangeEvent; 
-    public Action<uint,bool[]> ButtonDownEvent; 
+    public Action<uint,bool[]> ButtonDownEvent;
+    public Action<uint, uint[]> AxisEvent;
 
     public RawInput(NativeAPI.HWND_WRAPPER wrapper) : this(wrapper.hwnd)
     {
@@ -23,6 +24,8 @@ public class RawInput
             MouseStateChangeEvent?.Invoke(i, i1, arg3, arg4);
         NativeAPI.ButtonDownListeners += (usageBase, states) =>
             ButtonDownEvent?.Invoke(usageBase, states);
+        NativeAPI.AxisListeners += (usageBase, values) =>
+            AxisEvent?.Invoke(usageBase, values);
     }
 
     public RawInput(HWND windowHandle)
