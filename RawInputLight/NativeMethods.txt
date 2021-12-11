@@ -7,7 +7,12 @@ ShowWindow
 GetRawInputData
 RAWINPUTHEADER
 RAWINPUT
-SetCapture
+GetRawInputDeviceInfo
+HidP_GetCaps
+HIDP_BUTTON_CAPS
+HidP_GetButtonCaps
+HidP_GetValueCaps
+HidP_GetUsages
 
 
 

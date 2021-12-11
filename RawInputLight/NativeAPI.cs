@@ -1,6 +1,8 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Windows.Win32;
+using Windows.Win32.Devices.HumanInterfaceDevice;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Input;
 using Windows.Win32.UI.WindowsAndMessaging;
@@ -10,7 +12,9 @@ namespace RawInputLight;
 public static class NativeAPI
 {
     public static Action<ushort, KeyState> KeyListeners;
-    public static Action<int, int, uint,int> MouseStateListeners; 
+    public static Action<int, int, uint,int> MouseStateListeners;
+    public static Action<uint,bool[]> ButtonDownListeners;
+    
     public struct HID_DEV_ID
     {
         public ushort page;
@@ -208,6 +212,7 @@ public static class NativeAPI
                         case (int) WindowsMessages.WM_KEYUP:
                             KeyListeners?.Invoke(raw->data.keyboard.VKey, KeyState.KeyUp);
                             break;
+                       
                     }
                 } 
                 else if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEMOUSE)
@@ -215,6 +220,10 @@ public static class NativeAPI
                     MouseStateListeners?.Invoke(raw->data.mouse.lLastX,
                         raw->data.mouse.lLastY, raw->data.mouse.Anonymous.Anonymous.usButtonFlags,
                         raw->data.mouse.Anonymous.Anonymous.usButtonData);
+                }
+                else if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEHID)
+                {
+                    ParseRawHID(raw);
                 }
 
                 Marshal.FreeHGlobal(lpb);
@@ -227,6 +236,84 @@ public static class NativeAPI
         }
 
         return new LRESULT(0);
+    }
+
+    private static unsafe void ParseRawHID(RAWINPUT* raw)
+    {
+        uint dataSize=0;
+        PInvoke.GetRawInputDeviceInfo(
+            raw->header.hDevice,
+            RAW_INPUT_DEVICE_INFO_COMMAND.RIDI_PREPARSEDDATA,
+            IntPtr.Zero.ToPointer(), &dataSize);
+        if (dataSize == 0)
+        {
+            Console.WriteLine("No preparsed data");
+            return;
+        }
+
+        var pPreparsedDataBuffer = Marshal.AllocHGlobal((int)dataSize);
+        PInvoke.GetRawInputDeviceInfo(raw->header.hDevice,
+            RAW_INPUT_DEVICE_INFO_COMMAND.RIDI_PREPARSEDDATA,
+            pPreparsedDataBuffer.ToPointer(),&dataSize);
+        //now process preparsed data
+        HIDP_CAPS hcaps = new HIDP_CAPS();
+        PInvoke.HidP_GetCaps((nint)pPreparsedDataBuffer.ToInt64(),
+            out hcaps);
+        // get button caps
+        var buttonCapsPtr = Marshal.AllocHGlobal(
+            sizeof(HIDP_BUTTON_CAPS) * hcaps.NumberInputButtonCaps);
+        ushort buttonCapsLength=hcaps.NumberInputButtonCaps;
+        var capsLength = hcaps.NumberInputButtonCaps;
+        PInvoke.HidP_GetButtonCaps(HIDP_REPORT_TYPE.HidP_Input,
+            (HIDP_BUTTON_CAPS *)buttonCapsPtr.ToPointer(), ref buttonCapsLength,
+            (nint) pPreparsedDataBuffer.ToInt64());
+        // Get buttons down
+        HIDP_BUTTON_CAPS* pButtonCaps = (HIDP_BUTTON_CAPS*) buttonCapsPtr.ToPointer();
+        uint usageMin = 0;
+        uint usageMax = 0;
+        uint numUsages = 0;
+        if (pButtonCaps->IsRange.Value!=0)
+        {
+            usageMin = (uint) (pButtonCaps->Anonymous.Range.UsageMin & 0x00FF);
+            usageMax = (uint) (pButtonCaps->Anonymous.Range.UsageMax & 0x00FF);
+            numUsages = (usageMax - usageMin)+1;
+        }
+        else
+        {
+            usageMin = pButtonCaps->Anonymous.NotRange.Usage;
+            usageMax = usageMin;
+            numUsages = 1;
+        }
+
+        var usagesPtr = Marshal.AllocHGlobal((int)numUsages * sizeof(ushort));
+        uint reportedUsages = numUsages;
+        fixed (byte* report = &(raw->data.hid.bRawData[0]))
+        {
+            PInvoke.HidP_GetUsages(
+                HIDP_REPORT_TYPE.HidP_Input, pButtonCaps->UsagePage, 0, 
+                (ushort*)usagesPtr.ToPointer(),ref reportedUsages,
+                (nint) (pPreparsedDataBuffer.ToPointer()),
+                new PSTR(report), raw->data.hid.dwSizeHid);
+        }
+        //process usages
+        bool[] usageStates = new bool[numUsages]; // total length
+        Array.Fill(usageStates,false);
+        for (int i = 0; i < reportedUsages; i++)
+        {
+            ushort* ushortPtr = (ushort *)
+                IntPtr.Add(usagesPtr,i * sizeof(ushort)).ToPointer();
+            uint usage = *ushortPtr;
+            usageStates[usage-pButtonCaps->Anonymous.Range.UsageMin] = true;
+        }
+
+        uint compositeUsage = ((uint)pButtonCaps->UsagePage << 16) | 
+                     pButtonCaps->Anonymous.Range.UsageMin;
+        ButtonDownListeners?.Invoke(compositeUsage,
+            usageStates);
+        // free buffers
+        Marshal.FreeHGlobal(usagesPtr);
+        Marshal.FreeHGlobal(buttonCapsPtr);
+        Marshal.FreeHGlobal(pPreparsedDataBuffer);
     }
 
     public struct HWND_WRAPPER
