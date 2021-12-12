@@ -14,7 +14,11 @@ HidP_GetButtonCaps
 HidP_GetValueCaps
 HidP_GetUsages
 HidP_GetUsageValue
-
+GetRawInputDeviceInfo
+RID_DEVICE_INFO
+RegistryKey
+HidD_GetProductString
+GetRawInputDeviceList
 
 
 

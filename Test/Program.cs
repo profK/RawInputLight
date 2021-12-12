@@ -8,14 +8,28 @@ internal class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        NativeAPI.RefreshDeviceNames();
         var wrapper = NativeAPI.OpenWindow();
         var rawInput = new RawInput(wrapper);
-        rawInput.KeyStateChangeEvent += (arg1, state) =>
-            Console.WriteLine("Keys: "+arg1 + " : " + state);
-        rawInput.MouseStateChangeEvent += (i, i1, arg3, arg4) =>
-            Console.WriteLine("Mouse: "+i + "," + i1 + " " + arg3 + " " + arg4.ToString("X"));
-        rawInput.ButtonDownEvent += (usageBase, buttons) =>
+        rawInput.KeyStateChangeEvent += (devID, arg1, state) =>
         {
+            Console.WriteLine("-------");
+            Console.WriteLine(devID);
+            Console.WriteLine("Keys: " + arg1 + " : " + state);
+            Console.WriteLine("-------");
+        };
+
+        rawInput.MouseStateChangeEvent += (devID, i, i1, arg3, arg4) =>
+        {
+            Console.WriteLine("-------");
+            Console.WriteLine(devID);
+            Console.WriteLine("Mouse: " + i + "," + i1 + " " + arg3 + " " + arg4.ToString("X"));
+            Console.WriteLine("-------");
+        };
+        rawInput.ButtonDownEvent += (devID,usageBase, buttons) =>
+        {
+            Console.WriteLine("-------");
+            Console.WriteLine(devID);
             Console.Write("Buttons: ");
             for (int i = 0; i < buttons.Length; i++)
             {
@@ -26,9 +40,12 @@ internal class Program
             }
 
             Console.WriteLine();
+            Console.WriteLine("-------");
         };
-        rawInput.AxisEvent +=(usageBase, values) => 
+        rawInput.AxisEvent +=(devID,usageBase, values) => 
         {
+            Console.WriteLine("-------");
+            Console.WriteLine(devID);
             Console.Write("Axes: ");
             for (int i = 0; i < values.Length; i++)
             {
@@ -37,6 +54,7 @@ internal class Program
             }
 
             Console.WriteLine();
+            Console.WriteLine("-------");
         };    
         NativeAPI.MessagePump(wrapper);
        

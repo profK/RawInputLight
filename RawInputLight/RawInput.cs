@@ -11,21 +11,21 @@ public class RawInput
     private const ushort GenericGamepad = 0x05;
     private const ushort GenericKeyboard = 0x06;
 
-    public Action<ushort, KeyState> KeyStateChangeEvent;
-    public Action<int, int, uint,int> MouseStateChangeEvent; 
-    public Action<uint,bool[]> ButtonDownEvent;
-    public Action<uint[], uint[]> AxisEvent;
+    public Action<string,ushort, KeyState> KeyStateChangeEvent;
+    public Action<string,int, int, uint,int> MouseStateChangeEvent; 
+    public Action<string,uint,bool[]> ButtonDownEvent;
+    public Action<string,uint[], uint[]> AxisEvent;
 
     public RawInput(NativeAPI.HWND_WRAPPER wrapper) : this(wrapper.hwnd)
     {
-        NativeAPI.KeyListeners += (arg1, state) => 
-            KeyStateChangeEvent?.Invoke(arg1,state) ;
-        NativeAPI.MouseStateListeners += (i, i1, arg3, arg4) =>
-            MouseStateChangeEvent?.Invoke(i, i1, arg3, arg4);
-        NativeAPI.ButtonDownListeners += (usageBase, states) =>
-            ButtonDownEvent?.Invoke(usageBase, states);
-        NativeAPI.AxisListeners += (usageBase, values) =>
-            AxisEvent?.Invoke(usageBase, values);
+        NativeAPI.KeyListeners += (dev, arg1, state) => 
+            KeyStateChangeEvent?.Invoke(dev,arg1,state) ;
+        NativeAPI.MouseStateListeners += (dev,i, i1, arg3, arg4) =>
+            MouseStateChangeEvent?.Invoke(dev,i, i1, arg3, arg4);
+        NativeAPI.ButtonDownListeners += (dev,usageBase, states) =>
+            ButtonDownEvent?.Invoke(dev,usageBase, states);
+        NativeAPI.AxisListeners += (dev,usageBase, values) =>
+            AxisEvent?.Invoke(dev, usageBase, values);
     }
 
     public RawInput(HWND windowHandle)

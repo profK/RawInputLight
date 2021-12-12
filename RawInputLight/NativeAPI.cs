@@ -1,20 +1,24 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Devices.HumanInterfaceDevice;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Input;
 using Windows.Win32.UI.WindowsAndMessaging;
+using Microsoft.Win32;
 
 namespace RawInputLight;
 
 public static class NativeAPI
 {
-    public static Action<ushort, KeyState> KeyListeners;
-    public static Action<int, int, uint,int> MouseStateListeners;
-    public static Action<uint,bool[]> ButtonDownListeners;
-    public static Action<uint[],uint[]> AxisListeners;
+    public static Action<string,ushort, KeyState> KeyListeners;
+    public static Action<string,int, int, uint,int> MouseStateListeners;
+    public static Action<string,uint,bool[]> ButtonDownListeners;
+    public static Action<string,uint[],uint[]> AxisListeners;
     
     public struct HID_DEV_ID
     {
@@ -167,6 +171,57 @@ public static class NativeAPI
     
     [DllImport("user32.dll")]
     static extern IntPtr DispatchMessage([In] ref MSG lpmsg);
+
+
+    
+
+
+    private static Dictionary<HANDLE, string> deviceNames = new Dictionary<HANDLE, string>();
+
+    public static unsafe void RefreshDeviceNames()
+    {
+        deviceNames.Clear();
+        uint numDevices = 0;
+        PInvoke.GetRawInputDeviceList((RAWINPUTDEVICELIST*) IntPtr.Zero.ToPointer(),
+            &numDevices,
+            (uint) sizeof(RAWINPUTDEVICELIST));
+        IntPtr devListPtr = Marshal.AllocHGlobal(
+            (int)numDevices * sizeof(RAWINPUTDEVICELIST));
+        PInvoke.GetRawInputDeviceList((RAWINPUTDEVICELIST*) devListPtr.ToPointer(),
+            &numDevices,
+            (uint) sizeof(RAWINPUTDEVICELIST));
+       
+        for (int i = 0; i < numDevices; i++)
+        {
+            IntPtr recPtr = IntPtr.Add(devListPtr,
+                i * sizeof(RAWINPUTDEVICELIST));
+            RAWINPUTDEVICELIST rec = Marshal.PtrToStructure<RAWINPUTDEVICELIST>(recPtr);
+            uint nameSize=0;
+            PInvoke.GetRawInputDeviceInfo(rec.hDevice, RAW_INPUT_DEVICE_INFO_COMMAND.RIDI_DEVICENAME,
+                IntPtr.Zero.ToPointer(), &nameSize);
+            IntPtr nameBuffer = Marshal.AllocHGlobal((int)nameSize*2);
+            PInvoke.GetRawInputDeviceInfo(rec.hDevice, RAW_INPUT_DEVICE_INFO_COMMAND.RIDI_DEVICENAME,
+                nameBuffer.ToPointer(), &nameSize);
+            string name = Marshal.PtrToStringAuto(nameBuffer);
+            Console.WriteLine(rec.hDevice.Value+ ":" + name);
+            Marshal.FreeHGlobal(nameBuffer);
+        }
+        
+        Marshal.FreeHGlobal(devListPtr);
+    }
+
+    private static string GetDevName(HANDLE dHandle)
+    {
+        if (!deviceNames.ContainsKey(dHandle))
+        {
+            RefreshDeviceNames();
+            if (!deviceNames.ContainsKey(dHandle))
+            {
+                return "";
+            }
+        }
+        return deviceNames[dHandle];
+    }
     
     private static unsafe LRESULT LpfnWndProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam)
     {
@@ -189,6 +244,7 @@ public static class NativeAPI
                 {
                     return new LRESULT(0);
                 }
+              
 
                 PInvoke.GetRawInputData(new HRAWINPUT(lParam), RAW_INPUT_DATA_COMMAND_FLAGS.RID_INPUT,
                     IntPtr.Zero.ToPointer(), &dwSize, (uint) sizeof(RAWINPUTHEADER));
@@ -201,29 +257,33 @@ public static class NativeAPI
                     Console.WriteLine("GetRawInputData does not return correct size !\n");
 
                 var raw = (RAWINPUT*) lpb;
-
+                string devName = GetDevName(raw->header.hDevice);
+                
                 if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEKEYBOARD)
                 {
                     switch (raw->data.keyboard.Message)
                     {
                         case (int) WindowsMessages.WM_KEYDOWN:
-                            KeyListeners?.Invoke(raw->data.keyboard.VKey, KeyState.KeyDown);
+                            string name = "";
+                            KeyListeners?.Invoke(devName,raw->data.keyboard.VKey, KeyState.KeyDown);
                             break;
                         case (int) WindowsMessages.WM_KEYUP:
-                            KeyListeners?.Invoke(raw->data.keyboard.VKey, KeyState.KeyUp);
+                            name = "";
+                            KeyListeners?.Invoke(devName,raw->data.keyboard.VKey, KeyState.KeyUp);
                             break;
-                       
                     }
                 } 
                 else if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEMOUSE)
                 {
-                    MouseStateListeners?.Invoke(raw->data.mouse.lLastX,
+                  
+                    MouseStateListeners?.Invoke(devName,raw->data.mouse.lLastX,
                         raw->data.mouse.lLastY, raw->data.mouse.Anonymous.Anonymous.usButtonFlags,
                         raw->data.mouse.Anonymous.Anonymous.usButtonData);
                 }
                 else if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEHID)
                 {
-                    ParseRawHID(raw);
+                   
+                    ParseRawHID(devName,raw);
                 }
 
                 Marshal.FreeHGlobal(lpb);
@@ -238,7 +298,11 @@ public static class NativeAPI
         return new LRESULT(0);
     }
 
-    private static unsafe void ParseRawHID(RAWINPUT* raw)
+ 
+   
+    
+
+    private static unsafe void ParseRawHID(string devName,RAWINPUT* raw)
     {
         uint dataSize=0;
         PInvoke.GetRawInputDeviceInfo(
@@ -250,12 +314,12 @@ public static class NativeAPI
             Console.WriteLine("No preparsed data");
             return;
         }
-
         var pPreparsedDataBuffer = Marshal.AllocHGlobal((int)dataSize);
         PInvoke.GetRawInputDeviceInfo(raw->header.hDevice,
             RAW_INPUT_DEVICE_INFO_COMMAND.RIDI_PREPARSEDDATA,
             pPreparsedDataBuffer.ToPointer(),&dataSize);
         //now process preparsed data
+
         HIDP_CAPS hcaps = new HIDP_CAPS();
         PInvoke.HidP_GetCaps((nint)pPreparsedDataBuffer.ToInt64(),
             out hcaps);
@@ -308,7 +372,7 @@ public static class NativeAPI
 
         var compositeUsage = ((uint)pButtonCaps->UsagePage << 16) | 
                      pButtonCaps->Anonymous.Range.UsageMin;
-        ButtonDownListeners?.Invoke(compositeUsage,
+        ButtonDownListeners?.Invoke(devName,compositeUsage,
             usageStates);
         //get value caps
         var valueCapsPtr = Marshal.AllocHGlobal(
@@ -349,7 +413,7 @@ public static class NativeAPI
 
        
         
-        AxisListeners?.Invoke(usages, values);
+        AxisListeners?.Invoke(devName,usages, values);
         // free buffers
         Marshal.FreeHGlobal(valueCapsPtr);
         Marshal.FreeHGlobal(usagesPtr);
