@@ -20,4 +20,4 @@ The code for getting those names is borrowed from the rawinput-sharp project. (h
 Note that names are cached by handle.  I dont expect handles to change their menaing during program execution, but if
 they do you cna regenerate the names by manually calling NativeAPI.RefreshDeviceNames()
 
-Note the usages provieded in the callback are the full usage, including the high bits that indicate the usage page.
+Note the HID usages provided in the callbacks are the full usage, including the high bits that indicate the usage page.
