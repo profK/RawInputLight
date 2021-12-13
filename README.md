@@ -1,8 +1,9 @@
 # RawInputLight
 
 This is an absolutely minimal wrapper around Win32 RawInpuit in order to get Mouse, KB and Joystick/gamepad input.
+
 It uses a hidden background window to collect the information and works no matter what window has focus.  It is built
-for .NET 6
+for .NET 6 and tlaks directly to the Win32API.  A such, it  does NOT depened on any Windows desktop framework (WPF, WinForms, etc)
 
 It is pure C# and, for the most part, depends on the CsWin32 code generator to create the PInvoke stubs on the fly.
 CsWin32 generates binding code on the fly from the list in NativeMethods.txt
