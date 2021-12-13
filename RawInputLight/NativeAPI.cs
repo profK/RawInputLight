@@ -9,28 +9,30 @@ using Windows.Win32.Devices.HumanInterfaceDevice;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Input;
 using Windows.Win32.UI.WindowsAndMessaging;
+using HidSharp;
 using Microsoft.Win32;
 
 namespace RawInputLight;
 
 public static class NativeAPI
 {
-    public static Action<string,ushort, KeyState> KeyListeners;
-    public static Action<string,int, int, uint,int> MouseStateListeners;
-    public static Action<string,uint,bool[]> ButtonDownListeners;
-    public static Action<string,uint[],uint[]> AxisListeners;
-    
+    public static Action<string, ushort, KeyState> KeyListeners;
+    public static Action<string, int, int, uint, int> MouseStateListeners;
+    public static Action<string, uint, bool[]> ButtonDownListeners;
+    public static Action<string, uint[], uint[]> AxisListeners;
+
     public struct HID_DEV_ID
     {
         public ushort page;
         public ushort usage;
 
-        public HID_DEV_ID(ushort p,ushort u)
+        public HID_DEV_ID(ushort p, ushort u)
         {
             page = p;
             usage = u;
         }
     }
+
     public static unsafe bool RegisterInputDevices(HWND windowHandle, HID_DEV_ID[] devices)
     {
         RAWINPUTDEVICE[] rawDevices = new RAWINPUTDEVICE[devices.Length];
@@ -42,25 +44,25 @@ public static class NativeAPI
             rawDevices[i].hwndTarget = windowHandle;
             rawDevices[i].dwFlags = RAWINPUTDEVICE_FLAGS.RIDEV_INPUTSINK;
         }
-        
+
         fixed (RAWINPUTDEVICE* devPtr = rawDevices)
         {
             if (PInvoke.RegisterRawInputDevices(devPtr,
-                    (uint)rawDevices.Length, (uint) sizeof(RAWINPUTDEVICE)))
+                    (uint) rawDevices.Length, (uint) sizeof(RAWINPUTDEVICE)))
             {
                 return true;
             }
             else
             {
-                Console.WriteLine("Error registering raw device: "+GetLastError());
+                Console.WriteLine("Error registering raw device: " + GetLastError());
                 return false;
             }
         }
     }
-    
+
     public static void MessagePump(HWND_WRAPPER hwndWrapper)
     {
-     
+
         MSG msg;
         bool done = false;
         do
@@ -75,13 +77,13 @@ public static class NativeAPI
                     done = true;
                     break;
                 default:
-                   // Console.WriteLine("Pumping message: "+(WindowsMessages)msg.message);
+                    // Console.WriteLine("Pumping message: "+(WindowsMessages)msg.message);
                     TranslateMessage(ref msg);
                     DispatchMessage(ref msg);
                     break;
             }
 
-        } while (!done) ;
+        } while (!done);
 
     }
 
@@ -105,7 +107,7 @@ public static class NativeAPI
                     0,
                     0, 0, 0, 0, new HWND(0), new HMENU(IntPtr.Zero),
                     windowClass.hInstance, null);
-               
+
                 if (hwnd.Value == IntPtr.Zero)
                     throw new Exception("Opening window failed: " +
                                         GetLastError());
@@ -116,8 +118,8 @@ public static class NativeAPI
         }
     }
 
-    
-    
+
+
 
     //seem to need to add these manually
     [DllImport("kernel32.dll")]
@@ -147,8 +149,8 @@ public static class NativeAPI
         {
             return new POINT(p.X, p.Y);
         }
-    } 
-    
+    }
+
     [StructLayout(LayoutKind.Sequential)]
 
     public struct MSG
@@ -161,22 +163,24 @@ public static class NativeAPI
         public POINT pt;
         public int lPrivate;
     }
-    
+
     [DllImport("user32.dll")]
     static extern int GetMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin,
         uint wMsgFilterMax);
-    
+
     [DllImport("user32.dll")]
     static extern bool TranslateMessage([In] ref MSG lpMsg);
-    
+
     [DllImport("user32.dll")]
     static extern IntPtr DispatchMessage([In] ref MSG lpmsg);
 
 
-    
 
 
-    private static Dictionary<HANDLE, string> deviceNames = new Dictionary<HANDLE, string>();
+
+    private static Dictionary<HANDLE, DeviceNames> deviceNames = 
+        new Dictionary<HANDLE, DeviceNames>();
+   
 
     public static unsafe void RefreshDeviceNames()
     {
@@ -186,41 +190,74 @@ public static class NativeAPI
             &numDevices,
             (uint) sizeof(RAWINPUTDEVICELIST));
         IntPtr devListPtr = Marshal.AllocHGlobal(
-            (int)numDevices * sizeof(RAWINPUTDEVICELIST));
+            (int) numDevices * sizeof(RAWINPUTDEVICELIST));
         PInvoke.GetRawInputDeviceList((RAWINPUTDEVICELIST*) devListPtr.ToPointer(),
             &numDevices,
             (uint) sizeof(RAWINPUTDEVICELIST));
-       
+
         for (int i = 0; i < numDevices; i++)
         {
             IntPtr recPtr = IntPtr.Add(devListPtr,
                 i * sizeof(RAWINPUTDEVICELIST));
             RAWINPUTDEVICELIST rec = Marshal.PtrToStructure<RAWINPUTDEVICELIST>(recPtr);
-            uint nameSize=0;
+            uint nameSize = 0;
             PInvoke.GetRawInputDeviceInfo(rec.hDevice, RAW_INPUT_DEVICE_INFO_COMMAND.RIDI_DEVICENAME,
                 IntPtr.Zero.ToPointer(), &nameSize);
-            IntPtr nameBuffer = Marshal.AllocHGlobal((int)nameSize*2);
+            IntPtr nameBuffer = Marshal.AllocHGlobal((int) nameSize * 2);
             PInvoke.GetRawInputDeviceInfo(rec.hDevice, RAW_INPUT_DEVICE_INFO_COMMAND.RIDI_DEVICENAME,
                 nameBuffer.ToPointer(), &nameSize);
             string name = Marshal.PtrToStringAuto(nameBuffer);
-            Console.WriteLine(rec.hDevice.Value+ ":" + name);
+            deviceNames.Add(rec.hDevice, GetGetProductNames(name));
+           
             Marshal.FreeHGlobal(nameBuffer);
         }
-        
+
         Marshal.FreeHGlobal(devListPtr);
     }
 
-    private static string GetDevName(HANDLE dHandle)
+    private static DeviceNames? GetDevNames(HANDLE dHandle)
     {
         if (!deviceNames.ContainsKey(dHandle))
         {
             RefreshDeviceNames();
             if (!deviceNames.ContainsKey(dHandle))
             {
-                return "";
+                return null;
             }
         }
+
         return deviceNames[dHandle];
+    }
+
+    public struct DeviceNames
+    {
+        public string devPath;
+        public string Manufacturer;
+        public string Product;
+
+        public DeviceNames(string path, string manufacturer, string product)
+        {
+            devPath = path;
+            Manufacturer = manufacturer;
+            Product = product;
+        }
+    }
+
+    
+
+public static DeviceNames GetGetProductNames(string devicePath)
+    {
+        var path = devicePath.Substring(4).Replace('#', '\\');
+        if (path.Contains("{")) path = path.Substring(0, path.IndexOf('{') - 1);
+
+        var device = CfgMgr32.LocateDevNode(path, CfgMgr32.LocateDevNodeFlags.Phantom);
+
+        string manufacturerName = "";
+        string productName = "";
+        manufacturerName = CfgMgr32.GetDevNodePropertyString(device, in DevicePropertyKey.DeviceManufacturer);
+        productName = CfgMgr32.GetDevNodePropertyString(device, in DevicePropertyKey.DeviceFriendlyName);
+        productName ??= CfgMgr32.GetDevNodePropertyString(device, in DevicePropertyKey.Name);
+        return new DeviceNames(path, manufacturerName, productName);
     }
     
     private static unsafe LRESULT LpfnWndProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam)
@@ -257,7 +294,7 @@ public static class NativeAPI
                     Console.WriteLine("GetRawInputData does not return correct size !\n");
 
                 var raw = (RAWINPUT*) lpb;
-                string devName = GetDevName(raw->header.hDevice);
+                string devName = GetDevNames(raw->header.hDevice)?.Product;
                 
                 if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEKEYBOARD)
                 {

@@ -19,7 +19,9 @@ RID_DEVICE_INFO
 RegistryKey
 HidD_GetProductString
 GetRawInputDeviceList
-
+CM_Get_DevNode_Property_Keys
+CM_Locate_DevNode
+CM_LOCATE_DEVNODE_PHANTOM
 
 
 
