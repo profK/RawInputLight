@@ -16,10 +16,10 @@ namespace RawInputLight;
 
 public static class NativeAPI
 {
-    public static Action<string, ushort, KeyState> KeyListeners;
-    public static Action<string, int, int, uint, int> MouseStateListeners;
-    public static Action<string, uint, bool[]> ButtonDownListeners;
-    public static Action<string, uint[], uint[]> AxisListeners;
+    public static Action<HANDLE, ushort, KeyState> KeyListeners;
+    public static Action<HANDLE, int, int, uint, int> MouseStateListeners;
+    public static Action<HANDLE, uint, bool[]> ButtonDownListeners;
+    public static Action<HANDLE, uint[], uint[]> AxisListeners;
 
     public struct HID_DEV_ID
     {
@@ -181,7 +181,7 @@ public static class NativeAPI
     private static Dictionary<HANDLE, DeviceNames> deviceNames = 
         new Dictionary<HANDLE, DeviceNames>();
    
-
+    
     public static unsafe void RefreshDeviceNames()
     {
         deviceNames.Clear();
@@ -215,7 +215,7 @@ public static class NativeAPI
         Marshal.FreeHGlobal(devListPtr);
     }
 
-    private static DeviceNames? GetDevNames(HANDLE dHandle)
+    public static DeviceNames? GetDeviceNames(HANDLE dHandle)
     {
         if (!deviceNames.ContainsKey(dHandle))
         {
@@ -294,7 +294,7 @@ public static DeviceNames GetGetProductNames(string devicePath)
                     Console.WriteLine("GetRawInputData does not return correct size !\n");
 
                 var raw = (RAWINPUT*) lpb;
-                string devName = GetDevNames(raw->header.hDevice)?.Product;
+                HANDLE devHandle =raw->header.hDevice;
                 
                 if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEKEYBOARD)
                 {
@@ -302,25 +302,25 @@ public static DeviceNames GetGetProductNames(string devicePath)
                     {
                         case (int) WindowsMessages.WM_KEYDOWN:
                             string name = "";
-                            KeyListeners?.Invoke(devName,raw->data.keyboard.VKey, KeyState.KeyDown);
+                            KeyListeners?.Invoke(devHandle,raw->data.keyboard.VKey, KeyState.KeyDown);
                             break;
                         case (int) WindowsMessages.WM_KEYUP:
                             name = "";
-                            KeyListeners?.Invoke(devName,raw->data.keyboard.VKey, KeyState.KeyUp);
+                            KeyListeners?.Invoke(devHandle,raw->data.keyboard.VKey, KeyState.KeyUp);
                             break;
                     }
                 } 
                 else if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEMOUSE)
                 {
                   
-                    MouseStateListeners?.Invoke(devName,raw->data.mouse.lLastX,
+                    MouseStateListeners?.Invoke(devHandle,raw->data.mouse.lLastX,
                         raw->data.mouse.lLastY, raw->data.mouse.Anonymous.Anonymous.usButtonFlags,
                         raw->data.mouse.Anonymous.Anonymous.usButtonData);
                 }
                 else if (raw->header.dwType == (int) RAW_INPUT_TYPE.RIM_TYPEHID)
                 {
                    
-                    ParseRawHID(devName,raw);
+                    ParseRawHID(raw);
                 }
 
                 Marshal.FreeHGlobal(lpb);
@@ -339,7 +339,7 @@ public static DeviceNames GetGetProductNames(string devicePath)
    
     
 
-    private static unsafe void ParseRawHID(string devName,RAWINPUT* raw)
+    private static unsafe void ParseRawHID(RAWINPUT* raw)
     {
         uint dataSize=0;
         PInvoke.GetRawInputDeviceInfo(
@@ -409,7 +409,7 @@ public static DeviceNames GetGetProductNames(string devicePath)
 
         var compositeUsage = ((uint)pButtonCaps->UsagePage << 16) | 
                      pButtonCaps->Anonymous.Range.UsageMin;
-        ButtonDownListeners?.Invoke(devName,compositeUsage,
+        ButtonDownListeners?.Invoke(raw->header.hDevice,compositeUsage,
             usageStates);
         //get value caps
         var valueCapsPtr = Marshal.AllocHGlobal(
@@ -450,7 +450,7 @@ public static DeviceNames GetGetProductNames(string devicePath)
 
        
         
-        AxisListeners?.Invoke(devName,usages, values);
+        AxisListeners?.Invoke(raw->header.hDevice,usages, values);
         // free buffers
         Marshal.FreeHGlobal(valueCapsPtr);
         Marshal.FreeHGlobal(usagesPtr);

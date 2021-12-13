@@ -14,7 +14,7 @@ internal class Program
         rawInput.KeyStateChangeEvent += (devID, arg1, state) =>
         {
             Console.WriteLine("-------");
-            Console.WriteLine(devID);
+            Console.WriteLine(NativeAPI.GetDeviceNames(devID).Value.Product);
             Console.WriteLine("Keys: " + arg1 + " : " + state);
             Console.WriteLine("-------");
         };
@@ -22,14 +22,14 @@ internal class Program
         rawInput.MouseStateChangeEvent += (devID, i, i1, arg3, arg4) =>
         {
             Console.WriteLine("-------");
-            Console.WriteLine(devID);
+            Console.WriteLine(NativeAPI.GetDeviceNames(devID).Value.Product);
             Console.WriteLine("Mouse: " + i + "," + i1 + " " + arg3 + " " + arg4.ToString("X"));
             Console.WriteLine("-------");
         };
         rawInput.ButtonDownEvent += (devID,usageBase, buttons) =>
         {
             Console.WriteLine("-------");
-            Console.WriteLine(devID);
+            Console.WriteLine(NativeAPI.GetDeviceNames(devID).Value.Product);
             Console.Write("Buttons: ");
             for (int i = 0; i < buttons.Length; i++)
             {
@@ -45,7 +45,7 @@ internal class Program
         rawInput.AxisEvent +=(devID,usageBase, values) => 
         {
             Console.WriteLine("-------");
-            Console.WriteLine(devID);
+            Console.WriteLine(NativeAPI.GetDeviceNames(devID).Value.Product);
             Console.Write("Axes: ");
             for (int i = 0; i < values.Length; i++)
             {
