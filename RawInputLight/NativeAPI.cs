@@ -46,8 +46,8 @@ public static class NativeAPI
                 (handle, info) => info);
            
         }
-
         Marshal.FreeHGlobal(devListPtr);
+  ;
     }
     
     public struct HID_DEV_ID
@@ -240,23 +240,6 @@ public static class NativeAPI
         }
     }
 
-    
-
-public static DeviceNames GetGetProductNames(string devicePath)
-    {
-        var path = devicePath.Substring(4).Replace('#', '\\');
-        if (path.Contains("{")) path = path.Substring(0, path.IndexOf('{') - 1);
-
-        var device = CfgMgr32.LocateDevNode(path, CfgMgr32.LocateDevNodeFlags.Phantom);
-
-        string manufacturerName = "";
-        string productName = "";
-        manufacturerName = CfgMgr32.GetDevNodePropertyString(device, in DevicePropertyKey.DeviceManufacturer);
-        productName = CfgMgr32.GetDevNodePropertyString(device, in DevicePropertyKey.DeviceFriendlyName);
-        productName ??= CfgMgr32.GetDevNodePropertyString(device, in DevicePropertyKey.Name);
-        return new DeviceNames(path, manufacturerName, productName);
-    }
-    
     private static unsafe LRESULT LpfnWndProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam)
     {
         
@@ -338,121 +321,84 @@ public static DeviceNames GetGetProductNames(string devicePath)
 
     private static unsafe void ParseRawHID(RAWINPUT* raw)
     {
-        uint dataSize=0;
-        PInvoke.GetRawInputDeviceInfo(
-            raw->header.hDevice,
-            RAW_INPUT_DEVICE_INFO_COMMAND.RIDI_PREPARSEDDATA,
-            IntPtr.Zero.ToPointer(), &dataSize);
-        if (dataSize == 0)
-        {
-            Console.WriteLine("No preparsed data");
-            return;
-        }
-        var pPreparsedDataBuffer = Marshal.AllocHGlobal((int)dataSize);
-        PInvoke.GetRawInputDeviceInfo(raw->header.hDevice,
-            RAW_INPUT_DEVICE_INFO_COMMAND.RIDI_PREPARSEDDATA,
-            pPreparsedDataBuffer.ToPointer(),&dataSize);
-        //now process preparsed data
-
-        HIDP_CAPS hcaps = new HIDP_CAPS();
-        PInvoke.HidP_GetCaps((nint)pPreparsedDataBuffer.ToInt64(),
-            out hcaps);
-        // get button caps
-        var buttonCapsPtr = Marshal.AllocHGlobal(
-            sizeof(HIDP_BUTTON_CAPS) * hcaps.NumberInputButtonCaps);
-        ushort buttonCapsLength=hcaps.NumberInputButtonCaps;
-        var capsLength = hcaps.NumberInputButtonCaps;
-        PInvoke.HidP_GetButtonCaps(HIDP_REPORT_TYPE.HidP_Input,
-            (HIDP_BUTTON_CAPS *)buttonCapsPtr.ToPointer(), ref buttonCapsLength,
-            (nint) pPreparsedDataBuffer.ToInt64());
-        // Get buttons down
-        HIDP_BUTTON_CAPS* pButtonCaps = (HIDP_BUTTON_CAPS*) buttonCapsPtr.ToPointer();
-        uint usageMin = 0;
-        uint usageMax = 0;
-        uint numUsages = 0;
-        if (pButtonCaps->IsRange.Value!=0)
-        {
-            usageMin = (uint) (pButtonCaps->Anonymous.Range.UsageMin & 0x00FF);
-            usageMax = (uint) (pButtonCaps->Anonymous.Range.UsageMax & 0x00FF);
-            numUsages = (usageMax - usageMin)+1;
-        }
-        else
-        {
-            usageMin = pButtonCaps->Anonymous.NotRange.Usage;
-            usageMax = usageMin;
-            numUsages = 1;
-        }
-
-        var usagesPtr = Marshal.AllocHGlobal((int)numUsages * sizeof(ushort));
-        uint reportedUsages = numUsages;
-        fixed (byte* report = &(raw->data.hid.bRawData[0]))
-        {
-            PInvoke.HidP_GetUsages(
-                HIDP_REPORT_TYPE.HidP_Input, pButtonCaps->UsagePage, 0, 
-                (ushort*)usagesPtr.ToPointer(),ref reportedUsages,
-                (nint) (pPreparsedDataBuffer.ToPointer()),
-                new PSTR(report), raw->data.hid.dwSizeHid);
-        }
-        //process usages
-        bool[] usageStates = new bool[numUsages]; // total length
-        Array.Fill(usageStates,false,0,(int) numUsages);
-        for (int i = 0; i < reportedUsages; i++)
-        {
-            ushort* ushortPtr = (ushort *)
-                IntPtr.Add(usagesPtr,i * sizeof(ushort)).ToPointer();
-            uint usage = *ushortPtr;
-            usageStates[usage-pButtonCaps->Anonymous.Range.UsageMin] = true;
-        }
-
-        var compositeUsage = ((uint)pButtonCaps->UsagePage << 16) | 
-                     pButtonCaps->Anonymous.Range.UsageMin;
-        ButtonDownListeners?.Invoke(raw->header.hDevice,compositeUsage,
-            usageStates);
-        //get value caps
-        var valueCapsPtr = Marshal.AllocHGlobal(
-            sizeof(HIDP_VALUE_CAPS) * hcaps.NumberInputValueCaps);
-        ushort valueCapsLength=hcaps.NumberInputValueCaps;
-        HIDP_VALUE_CAPS* pValueCaps = (HIDP_VALUE_CAPS*) valueCapsPtr.ToPointer();
-        PInvoke.HidP_GetValueCaps(HIDP_REPORT_TYPE.HidP_Input,
-            pValueCaps, 
-            ref valueCapsLength,
-            (nint) pPreparsedDataBuffer.ToInt64());
-        //get values
-        uint[] values = new uint[valueCapsLength];
-        uint[] usages = new uint[valueCapsLength];
-        fixed (byte* report = &(raw->data.hid.bRawData[0]))
-        {
-           
-            for (int i = 0; i< valueCapsLength; i++)
-            {
-                HIDP_VALUE_CAPS* vcapPtr =
-                    (HIDP_VALUE_CAPS*)IntPtr.Add(valueCapsPtr,
-                        i * sizeof(HIDP_VALUE_CAPS)).ToPointer();
-                if (vcapPtr->IsRange.Value!=0)
+        DeviceInfo? devInfo = GetDeviceInfo(raw->header.hDevice);
+        if (devInfo.HasValue)
+            using (PreparsedData ppd = new PreparsedData(raw->header.hDevice)){
+                uint usageMin = 0;
+                uint usageMax = 0;
+                uint numUsages = 0;
+                HIDP_BUTTON_CAPS firstCaps = devInfo.Value.ButtonCaps[0];
+                if (firstCaps.IsRange.Value != 0)
                 {
-                    usageMin = (uint) (vcapPtr->Anonymous.Range.UsageMin & 0x00FF);
+                    usageMin = (uint) (firstCaps.Anonymous.Range.UsageMin & 0x00FF);
+                    usageMax = (uint) (firstCaps.Anonymous.Range.UsageMax & 0x00FF);
+                    numUsages = (usageMax - usageMin) + 1;
                 }
                 else
                 {
-                    usageMin = vcapPtr->Anonymous.NotRange.Usage;
+                    usageMin = firstCaps.Anonymous.NotRange.Usage;
+                    usageMax = usageMin;
+                    numUsages = 1;
                 }
-                usages[i] = ((uint)vcapPtr->UsagePage<<16)|usageMin;
-                PInvoke.HidP_GetUsageValue(
-                    HIDP_REPORT_TYPE.HidP_Input, pValueCaps->UsagePage, 0, 
-                    (ushort)usageMin,out values[i],
-                    (nint) (pPreparsedDataBuffer.ToPointer()),
-                    new PSTR(report), raw->data.hid.dwSizeHid);
-            }
-        }
 
-       
-        
-        AxisListeners?.Invoke(raw->header.hDevice,usages, values);
-        // free buffers
-        Marshal.FreeHGlobal(valueCapsPtr);
-        Marshal.FreeHGlobal(usagesPtr);
-        Marshal.FreeHGlobal(buttonCapsPtr);
-        Marshal.FreeHGlobal(pPreparsedDataBuffer);
+                var usagesPtr = Marshal.AllocHGlobal((int) numUsages * sizeof(ushort));
+                uint reportedUsages = numUsages;
+                fixed (byte* report = &(raw->data.hid.bRawData[0]))
+                {
+                    PInvoke.HidP_GetUsages(
+                        HIDP_REPORT_TYPE.HidP_Input, firstCaps.UsagePage, 0,
+                        (ushort*) usagesPtr.ToPointer(), ref reportedUsages,
+                        ppd,
+                        new PSTR(report), raw->data.hid.dwSizeHid);
+                }
+
+                //process usages
+                bool[] usageStates = new bool[numUsages]; // total length
+                Array.Fill(usageStates, false, 0, (int) numUsages);
+                for (int i = 0; i < reportedUsages; i++)
+                {
+                    ushort* ushortPtr = (ushort*)
+                        IntPtr.Add(usagesPtr, i * sizeof(ushort)).ToPointer();
+                    uint usage = *ushortPtr;
+                    usageStates[usage - firstCaps.Anonymous.Range.UsageMin] = true;
+                }
+
+                var compositeUsage = ((uint) firstCaps.UsagePage << 16) |
+                                     firstCaps.Anonymous.Range.UsageMin;
+                ButtonDownListeners?.Invoke(raw->header.hDevice, compositeUsage,
+                    usageStates);
+               
+                
+                //get values
+                uint[] values = new uint[devInfo.Value.ValueCaps.Length];
+                uint[] usages = new uint[devInfo.Value.ValueCaps.Length];
+                fixed (byte* report = &(raw->data.hid.bRawData[0]))
+                {
+
+                    for (int i = 0; i < devInfo.Value.ValueCaps.Length; i++)
+                    {
+                        HIDP_VALUE_CAPS vcaps =
+                            devInfo.Value.ValueCaps[i];
+                        if (vcaps.IsRange.Value != 0)
+                        {
+                            usageMin = (uint) (vcaps.Anonymous.Range.UsageMin & 0x00FF);
+                        }
+                        else
+                        {
+                            usageMin = vcaps.Anonymous.NotRange.Usage;
+                        }
+
+                        usages[i] = ((uint) vcaps.UsagePage << 16) | usageMin;
+                        PInvoke.HidP_GetUsageValue(
+                            HIDP_REPORT_TYPE.HidP_Input, vcaps.UsagePage, 0,
+                            (ushort) usageMin, out values[i],
+                            ppd,
+                            new PSTR(report), raw->data.hid.dwSizeHid);
+                    }
+                }
+                AxisListeners?.Invoke(raw->header.hDevice,usages, values);
+                Marshal.FreeHGlobal(usagesPtr);
+            }
     }
 
     public struct HWND_WRAPPER
