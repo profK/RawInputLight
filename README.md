@@ -21,3 +21,7 @@ Note that names are cached by handle.  I dont expect handles to change their mea
 they do you can regenerate the names by manually calling NativeAPI.RefreshDeviceNames()
 
 Note the HID usages provided in the callbacks are the full usage, including the high bits that indicate the usage page.
+  
+## Release Notes:
+1.1.0 - refactored the code for improved performance and cleanliness.
+        Also put more information in DeviceInfo  
