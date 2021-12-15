@@ -21,6 +21,35 @@ public static class NativeAPI
     public static Action<HANDLE, uint, bool[]> ButtonDownListeners;
     public static Action<HANDLE, uint[], uint[]> AxisListeners;
 
+    private static ConcurrentDictionary<HANDLE, DeviceInfo> deviceInfo = 
+        new ConcurrentDictionary<HANDLE, DeviceInfo>();
+    
+    public static unsafe void RefreshDeviceInfo()
+    {
+        deviceInfo.Clear();
+        uint numDevices = 0;
+        PInvoke.GetRawInputDeviceList((RAWINPUTDEVICELIST*) IntPtr.Zero.ToPointer(),
+            &numDevices,
+            (uint) sizeof(RAWINPUTDEVICELIST));
+        IntPtr devListPtr = Marshal.AllocHGlobal(
+            (int) numDevices * sizeof(RAWINPUTDEVICELIST));
+        PInvoke.GetRawInputDeviceList((RAWINPUTDEVICELIST*) devListPtr.ToPointer(),
+            &numDevices,
+            (uint) sizeof(RAWINPUTDEVICELIST));
+
+        for (int i = 0; i < numDevices; i++)
+        {
+            IntPtr recPtr = IntPtr.Add(devListPtr,
+                i * sizeof(RAWINPUTDEVICELIST));
+            RAWINPUTDEVICELIST rec = Marshal.PtrToStructure<RAWINPUTDEVICELIST>(recPtr);
+            deviceInfo.AddOrUpdate(rec.hDevice,new DeviceInfo(rec.hDevice),
+                (handle, info) => info);
+           
+        }
+
+        Marshal.FreeHGlobal(devListPtr);
+    }
+    
     public struct HID_DEV_ID
     {
         public ushort page;
@@ -178,55 +207,23 @@ public static class NativeAPI
 
 
 
-    private static Dictionary<HANDLE, DeviceNames> deviceNames = 
-        new Dictionary<HANDLE, DeviceNames>();
+    
    
     
-    public static unsafe void RefreshDeviceNames()
+    
+
+    public static DeviceInfo? GetDeviceInfo(HANDLE dHandle)
     {
-        deviceNames.Clear();
-        uint numDevices = 0;
-        PInvoke.GetRawInputDeviceList((RAWINPUTDEVICELIST*) IntPtr.Zero.ToPointer(),
-            &numDevices,
-            (uint) sizeof(RAWINPUTDEVICELIST));
-        IntPtr devListPtr = Marshal.AllocHGlobal(
-            (int) numDevices * sizeof(RAWINPUTDEVICELIST));
-        PInvoke.GetRawInputDeviceList((RAWINPUTDEVICELIST*) devListPtr.ToPointer(),
-            &numDevices,
-            (uint) sizeof(RAWINPUTDEVICELIST));
-
-        for (int i = 0; i < numDevices; i++)
+        if (!deviceInfo.ContainsKey(dHandle))
         {
-            IntPtr recPtr = IntPtr.Add(devListPtr,
-                i * sizeof(RAWINPUTDEVICELIST));
-            RAWINPUTDEVICELIST rec = Marshal.PtrToStructure<RAWINPUTDEVICELIST>(recPtr);
-            uint nameSize = 0;
-            PInvoke.GetRawInputDeviceInfo(rec.hDevice, RAW_INPUT_DEVICE_INFO_COMMAND.RIDI_DEVICENAME,
-                IntPtr.Zero.ToPointer(), &nameSize);
-            IntPtr nameBuffer = Marshal.AllocHGlobal((int) nameSize * 2);
-            PInvoke.GetRawInputDeviceInfo(rec.hDevice, RAW_INPUT_DEVICE_INFO_COMMAND.RIDI_DEVICENAME,
-                nameBuffer.ToPointer(), &nameSize);
-            string name = Marshal.PtrToStringAuto(nameBuffer);
-            deviceNames.Add(rec.hDevice, GetGetProductNames(name));
-           
-            Marshal.FreeHGlobal(nameBuffer);
-        }
-
-        Marshal.FreeHGlobal(devListPtr);
-    }
-
-    public static DeviceNames? GetDeviceNames(HANDLE dHandle)
-    {
-        if (!deviceNames.ContainsKey(dHandle))
-        {
-            RefreshDeviceNames();
-            if (!deviceNames.ContainsKey(dHandle))
+            RefreshDeviceInfo();
+            if (!deviceInfo.ContainsKey(dHandle))
             {
                 return null;
             }
         }
 
-        return deviceNames[dHandle];
+        return deviceInfo[dHandle];
     }
 
     public struct DeviceNames
