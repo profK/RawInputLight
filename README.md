@@ -23,7 +23,9 @@ they do you can regenerate the names by manually calling NativeAPI.RefreshDevice
 Note the HID usages provided in the callbacks are the full usage, including the high bits that indicate the usage page.
 ## Release Notes:
 1.1.0 - refactored the code for improved performance and cleanliness.
-        Also put more information in DeviceInfo  
+        Also put more information in DeviceInfo 
+        
 1.1.1 - Added NativeAPI.GetDevices
-        1.1.2 - Fixed WNDPROC gc issue
+        
+1.1.2 - Fixed WNDPROC gc issue
         
