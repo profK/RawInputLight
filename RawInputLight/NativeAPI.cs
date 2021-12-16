@@ -41,8 +41,14 @@ public static class NativeAPI
             IntPtr recPtr = IntPtr.Add(devListPtr,
                 i * sizeof(RAWINPUTDEVICELIST));
             RAWINPUTDEVICELIST rec = Marshal.PtrToStructure<RAWINPUTDEVICELIST>(recPtr);
-            deviceInfo.AddOrUpdate(rec.hDevice,new DeviceInfo(rec.hDevice),
-                (handle, info) => info);
+            if ((rec.dwType == RID_DEVICE_INFO_TYPE.RIM_TYPEMOUSE) ||
+                (rec.dwType == RID_DEVICE_INFO_TYPE.RIM_TYPEKEYBOARD) ||
+                (rec.dwType == RID_DEVICE_INFO_TYPE.RIM_TYPEHID))
+            {
+                deviceInfo.AddOrUpdate(rec.hDevice,new DeviceInfo(rec),
+                    (handle, info) => info);
+            }
+            
            
         }
         Marshal.FreeHGlobal(devListPtr);
@@ -206,15 +212,6 @@ public static class NativeAPI
 
     [DllImport("user32.dll")]
     static extern IntPtr DispatchMessage([In] ref MSG lpmsg);
-
-
-
-
-
-    
-   
-    
-    
 
     public static DeviceInfo? GetDeviceInfo(HANDLE dHandle)
     {
