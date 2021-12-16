@@ -26,3 +26,4 @@ Note the HID usages provided in the callbacks are the full usage, including the 
         Also put more information in DeviceInfo  
 1.1.1 - Added NativeAPI.GetDevices
 1.1.2 - Fixed WNDPROC gc issue
+        
