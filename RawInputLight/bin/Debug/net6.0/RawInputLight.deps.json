@@ -8,20 +8,11 @@
     ".NETCoreApp,Version=v6.0": {
       "RawInputLight/1.0.0": {
         "dependencies": {
-          "HidSharpCore": "1.2.1.1",
           "Microsoft.Net.Compilers.Toolset": "4.1.0-1.final",
           "Microsoft.Windows.CsWin32": "0.1.619-beta"
         },
         "runtime": {
           "RawInputLight.dll": {}
-        }
-      },
-      "HidSharpCore/1.2.1.1": {
-        "runtime": {
-          "lib/net5.0/HidSharpCore.dll": {
-            "assemblyVersion": "2.1.0.0",
-            "fileVersion": "2.1.0.0"
-          }
         }
       },
       "Microsoft.Net.Compilers.Toolset/4.1.0-1.final": {},
@@ -42,13 +33,6 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
-    },
-    "HidSharpCore/1.2.1.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-NJOXoNiMby/DQn1mttFWp88LXLITs6swXpLtFUFTMTJJEFgCDs0UbcpxH8Oc1N1N/pgduaiG2TC9OYOCEEgv/A==",
-      "path": "hidsharpcore/1.2.1.1",
-      "hashPath": "hidsharpcore.1.2.1.1.nupkg.sha512"
     },
     "Microsoft.Net.Compilers.Toolset/4.1.0-1.final": {
       "type": "package",

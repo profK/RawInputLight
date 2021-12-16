@@ -5,7 +5,7 @@
   },
   "projects": {
     "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "restore": {
         "projectUniqueName": "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
         "projectName": "RawInputLight",
@@ -50,10 +50,6 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
-            "HidSharpCore": {
-              "target": "Package",
-              "version": "[1.2.1.1, )"
-            },
             "Microsoft.Net.Compilers.Toolset": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",

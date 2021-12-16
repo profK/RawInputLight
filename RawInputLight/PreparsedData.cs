@@ -17,7 +17,7 @@ public unsafe class PreparsedData:IDisposable
             IntPtr.Zero.ToPointer(), &dataSize);
         if (dataSize == 0)
         {
-            Console.WriteLine("No preparsed data");
+            Console.WriteLine("No preparsed data: "+Marshal.GetLastSystemError());
             return;
         }
         ppdata = Marshal.AllocHGlobal((int)dataSize);

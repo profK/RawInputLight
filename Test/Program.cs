@@ -8,7 +8,13 @@ internal class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        
         NativeAPI.RefreshDeviceInfo();
+        foreach (var devInfo in NativeAPI.GetDevices())
+        {
+            Console.WriteLine(devInfo.Names.Product);
+        }
+        
         var wrapper = NativeAPI.OpenWindow();
         var rawInput = new RawInput(wrapper);
         rawInput.KeyStateChangeEvent += (devID, arg1, state) =>

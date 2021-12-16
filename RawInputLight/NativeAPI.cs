@@ -9,7 +9,6 @@ using Windows.Win32.Devices.HumanInterfaceDevice;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Input;
 using Windows.Win32.UI.WindowsAndMessaging;
-using HidSharp;
 using Microsoft.Win32;
 
 namespace RawInputLight;
@@ -120,6 +119,7 @@ public static class NativeAPI
 
     }
 
+    private static WNDPROC wndProc = new WNDPROC(LpfnWndProc);
     public static unsafe HWND_WRAPPER OpenWindow()
     {
         var windowClass = new WNDCLASSW();
@@ -129,7 +129,7 @@ public static class NativeAPI
         {
             var classnameStr = new PCWSTR(p1);
             windowClass.lpszClassName = classnameStr;
-            windowClass.lpfnWndProc = LpfnWndProc;
+            windowClass.lpfnWndProc = wndProc;
             var result = PInvoke.RegisterClass(windowClass);
             if (result == 0) throw new Exception("Registering window class failed");
 
@@ -244,6 +244,7 @@ public static class NativeAPI
         }
     }
 
+    
     private static unsafe LRESULT LpfnWndProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam)
     {
         
