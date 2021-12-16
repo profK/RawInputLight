@@ -47,7 +47,11 @@ public static class NativeAPI
            
         }
         Marshal.FreeHGlobal(devListPtr);
-  ;
+    }
+
+    public static DeviceInfo[] GetDevices()
+    {
+        return deviceInfo.Values.ToArray();
     }
     
     public struct HID_DEV_ID
