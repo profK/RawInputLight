@@ -25,3 +25,4 @@ Note the HID usages provided in the callbacks are the full usage, including the 
 ## Release Notes:
 1.1.0 - refactored the code for improved performance and cleanliness.
         Also put more information in DeviceInfo  
+1.1.1 - Added NativeAPI.GetDevices
