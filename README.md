@@ -29,3 +29,5 @@ Note the HID usages provided in the callbacks are the full usage, including the 
         
 1.1.2 - Fixed WNDPROC gc issue
         
+1.1.3 - Updated Keyboard and Mouse DevcieIndo to create "fake" UsagePage and Usage info
+        
