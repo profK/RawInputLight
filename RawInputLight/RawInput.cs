@@ -11,10 +11,10 @@ public class RawInput
     private const ushort GenericGamepad = 0x05;
     private const ushort GenericKeyboard = 0x06;
 
-    public Action<HANDLE,ushort, KeyState> KeyStateChangeEvent;
-    public Action<HANDLE,int, int, uint,int> MouseStateChangeEvent; 
-    public Action<HANDLE,uint,bool[]> ButtonDownEvent;
-    public Action<HANDLE,uint[], uint[]> AxisEvent;
+    public event Action<HANDLE,ushort, KeyState> KeyStateChangeEvent;
+    public event Action<HANDLE,int, int, uint,int> MouseStateChangeEvent; 
+    public event Action<HANDLE,uint,bool[]> ButtonDownEvent;
+    public event Action<HANDLE,uint[], uint[]> AxisEvent;
 
     public RawInput(NativeAPI.HWND_WRAPPER wrapper) : this(wrapper.hwnd)
     {

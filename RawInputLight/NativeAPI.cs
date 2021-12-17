@@ -15,10 +15,10 @@ namespace RawInputLight;
 
 public static class NativeAPI
 {
-    public static Action<HANDLE, ushort, KeyState> KeyListeners;
-    public static Action<HANDLE, int, int, uint, int> MouseStateListeners;
-    public static Action<HANDLE, uint, bool[]> ButtonDownListeners;
-    public static Action<HANDLE, uint[], uint[]> AxisListeners;
+    public static event Action<HANDLE, ushort, KeyState> KeyListeners;
+    public static event Action<HANDLE, int, int, uint, int> MouseStateListeners;
+    public static event Action<HANDLE, uint, bool[]> ButtonDownListeners;
+    public static event Action<HANDLE, uint[], uint[]> AxisListeners;
 
     private static ConcurrentDictionary<HANDLE, DeviceInfo> deviceInfo = 
         new ConcurrentDictionary<HANDLE, DeviceInfo>();
