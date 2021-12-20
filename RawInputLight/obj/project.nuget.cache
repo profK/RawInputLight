@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "LO4d/W/2tTZ6/et/SU3d4WZhGnQxR/6N/+csf+EPbr25v2T3E8Hvx5X1Rmk/ZiflaLQZ/6+Ji3GGdr/LvdGgbA==",
+  "success": true,
+  "projectFilePath": "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.net.compilers.toolset\\4.1.0-1.final\\microsoft.net.compilers.toolset.4.1.0-1.final.nupkg.sha512",
+    "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.windows.cswin32\\0.1.619-beta\\microsoft.windows.cswin32.0.1.619-beta.nupkg.sha512",
+    "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.windows.sdk.win32docs\\0.1.7-alpha\\microsoft.windows.sdk.win32docs.0.1.7-alpha.nupkg.sha512",
+    "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.windows.sdk.win32metadata\\15.0.2-preview\\microsoft.windows.sdk.win32metadata.15.0.2-preview.nupkg.sha512",
+    "C:\\Users\\jpkessel\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "UD8OFOeQYwNpdCTy0tJ4mssDyFFdFPdXGMFfilfoof8z9GoE44CGGNJv9iQrO8m8xpt2GDDzcL0Mc/4pwO6byA==",
+  "success": true,
+  "projectFilePath": "D:\\projects\\RiderProjects\\RawInputLight\\Tests\\Tests.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\jpkessel\\.nuget\\packages\\fsharp.core\\6.0.1\\fsharp.core.6.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
