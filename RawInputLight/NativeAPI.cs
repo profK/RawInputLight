@@ -4,17 +4,20 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
-using Windows.Win32;
 using Windows.Win32.Devices.HumanInterfaceDevice;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Input;
 using Windows.Win32.UI.WindowsAndMessaging;
 using Microsoft.Win32;
+using static Windows.Win32.PInvoke;
 
 namespace RawInputLight;
 
+
 public static class NativeAPI
 {
+    const uint UINT_MINUS_ONE = 0XFFFFFFFF;
+    
     public static event Action<HANDLE, ushort, KeyState> KeyListeners;
     public static event Action<HANDLE, int, int, uint, int> MouseStateListeners;
     public static event Action<HANDLE, uint, bool[]> ButtonDownListeners;
@@ -22,19 +25,29 @@ public static class NativeAPI
 
     private static ConcurrentDictionary<HANDLE, DeviceInfo> deviceInfo = 
         new ConcurrentDictionary<HANDLE, DeviceInfo>();
+
+    public static uint LastError = 0;
     
     public static unsafe void RefreshDeviceInfo()
     {
         deviceInfo.Clear();
         uint numDevices = 0;
-        PInvoke.GetRawInputDeviceList((RAWINPUTDEVICELIST*) IntPtr.Zero.ToPointer(),
-            &numDevices,
-            (uint) sizeof(RAWINPUTDEVICELIST));
+        if (GetRawInputDeviceList((RAWINPUTDEVICELIST*)IntPtr.Zero.ToPointer(),
+                &numDevices,
+                (uint)sizeof(RAWINPUTDEVICELIST)) == UINT_MINUS_ONE)
+        {
+            LastError = GetLastError();
+            return;
+        }
         IntPtr devListPtr = Marshal.AllocHGlobal(
             (int) numDevices * sizeof(RAWINPUTDEVICELIST));
-        PInvoke.GetRawInputDeviceList((RAWINPUTDEVICELIST*) devListPtr.ToPointer(),
-            &numDevices,
-            (uint) sizeof(RAWINPUTDEVICELIST));
+        if (GetRawInputDeviceList((RAWINPUTDEVICELIST*)devListPtr.ToPointer(),
+                &numDevices,
+                (uint)sizeof(RAWINPUTDEVICELIST)) == UINT_MINUS_ONE)
+        {
+            LastError = GetLastError();
+            return;
+        };
 
         for (int i = 0; i < numDevices; i++)
         {
@@ -45,11 +58,9 @@ public static class NativeAPI
                 (rec.dwType == RID_DEVICE_INFO_TYPE.RIM_TYPEKEYBOARD) ||
                 (rec.dwType == RID_DEVICE_INFO_TYPE.RIM_TYPEHID))
             {
-                deviceInfo.AddOrUpdate(rec.hDevice,new DeviceInfo(rec),
+                deviceInfo.AddOrUpdate(rec.hDevice, new DeviceInfo(rec),
                     (handle, info) => info);
             }
-            
-           
         }
         Marshal.FreeHGlobal(devListPtr);
     }
@@ -85,7 +96,7 @@ public static class NativeAPI
 
         fixed (RAWINPUTDEVICE* devPtr = rawDevices)
         {
-            if (PInvoke.RegisterRawInputDevices(devPtr,
+            if (RegisterRawInputDevices(devPtr,
                     (uint) rawDevices.Length, (uint) sizeof(RAWINPUTDEVICE)))
             {
                 return true;
@@ -136,13 +147,13 @@ public static class NativeAPI
             var classnameStr = new PCWSTR(p1);
             windowClass.lpszClassName = classnameStr;
             windowClass.lpfnWndProc = wndProc;
-            var result = PInvoke.RegisterClass(windowClass);
+            var result = RegisterClass(windowClass);
             if (result == 0) throw new Exception("Registering window class failed");
 
             fixed (char* p2 = "")
             {
                 var windownameStr = new PCWSTR(p2);
-                var hwnd = PInvoke.CreateWindowEx(0, classnameStr, windownameStr,
+                var hwnd = CreateWindowEx(0, classnameStr, windownameStr,
                     0,
                     0, 0, 0, 0, new HWND(0), new HMENU(IntPtr.Zero),
                     windowClass.hInstance, null);
@@ -150,7 +161,7 @@ public static class NativeAPI
                 if (hwnd.Value == IntPtr.Zero)
                     throw new Exception("Opening window failed: " +
                                         GetLastError());
-                PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_NORMAL);
+                ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_NORMAL);
                 //PInvoke.SetCapture(hwnd);
                 return new HWND_WRAPPER(hwnd);
             }
@@ -263,15 +274,15 @@ public static class NativeAPI
                 {
                     return new LRESULT(0);
                 }
-              
 
-                PInvoke.GetRawInputData(new HRAWINPUT(lParam), RAW_INPUT_DATA_COMMAND_FLAGS.RID_INPUT,
+
+                GetRawInputData(new HRAWINPUT(lParam), RAW_INPUT_DATA_COMMAND_FLAGS.RID_INPUT,
                     IntPtr.Zero.ToPointer(), &dwSize, (uint) sizeof(RAWINPUTHEADER));
 
                 if (dwSize == 0) return new LRESULT(0);
 
                 var lpb = Marshal.AllocHGlobal((int) dwSize);
-                if (PInvoke.GetRawInputData(new HRAWINPUT(lParam), RAW_INPUT_DATA_COMMAND_FLAGS.RID_INPUT,
+                if (GetRawInputData(new HRAWINPUT(lParam), RAW_INPUT_DATA_COMMAND_FLAGS.RID_INPUT,
                         lpb.ToPointer(), &dwSize, (uint) sizeof(RAWINPUTHEADER)) != dwSize)
                     Console.WriteLine("GetRawInputData does not return correct size !\n");
 
@@ -347,7 +358,7 @@ public static class NativeAPI
                 uint reportedUsages = numUsages;
                 fixed (byte* report = &(raw->data.hid.bRawData[0]))
                 {
-                    PInvoke.HidP_GetUsages(
+                    HidP_GetUsages(
                         HIDP_REPORT_TYPE.HidP_Input, firstCaps.UsagePage, 0,
                         (ushort*) usagesPtr.ToPointer(), ref reportedUsages,
                         ppd,
@@ -391,7 +402,7 @@ public static class NativeAPI
                         }
 
                         usages[i] = ((uint) vcaps.UsagePage << 16) | usageMin;
-                        PInvoke.HidP_GetUsageValue(
+                        HidP_GetUsageValue(
                             HIDP_REPORT_TYPE.HidP_Input, vcaps.UsagePage, 0,
                             (ushort) usageMin, out values[i],
                             ppd,

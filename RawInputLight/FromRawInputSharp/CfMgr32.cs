@@ -39,9 +39,16 @@ namespace RawInputLight
 
         public static DeviceInstanceHandle LocateDevNode(string devicePath, LocateDevNodeFlags flags)
         {
-            TryLocateDevNode(devicePath, flags, out var device).EnsureSuccess();
-
-            return device;
+            ConfigReturnValue result = TryLocateDevNode(devicePath, flags, out var device);
+            if (result == ConfigReturnValue.Success)
+            {
+                return device;
+            }
+            else
+            {
+                throw new Exception("LocateDevNode failed for path "+devicePath+". Error: " + result.ToString());
+            }
+            
         }
 
         public static ConfigReturnValue TryLocateDevNode(string devicePath, LocateDevNodeFlags flags, out DeviceInstanceHandle device)

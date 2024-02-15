@@ -1,8 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "VJeW5aFezWXX2PmmdJTuFoNEDhhib28MX3DtPHlo0Xg8NOLgig3dEu4HgXCozYkcgWL/0ZOSXJi+tZkdGjIX6g==",
+  "dgSpecHash": "kyOXebtw8Wqian6pZ4AMOqyZxB16lvJD76eqxebkXnq4aoECmjgexGSZ47yg/DRZfSgnmAfF6kPvDqRuggOK/w==",
   "success": true,
   "projectFilePath": "D:\\projects\\RiderProjects\\RawInputLight\\Test\\Test.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\jpkessel\\.nuget\\packages\\rawinputlight\\1.1.5\\rawinputlight.1.1.5.nupkg.sha512",
+    "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.26\\microsoft.netcore.app.ref.6.0.26.nupkg.sha512",
+    "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.26\\microsoft.windowsdesktop.app.ref.6.0.26.nupkg.sha512",
+    "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.26\\microsoft.aspnetcore.app.ref.6.0.26.nupkg.sha512",
+    "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\6.0.26\\microsoft.netcore.app.host.win-x64.6.0.26.nupkg.sha512"
+  ],
   "logs": []
 }
