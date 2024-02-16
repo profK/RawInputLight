@@ -8,13 +8,13 @@
     ".NETCoreApp,Version=v6.0": {
       "Test/1.0.0": {
         "dependencies": {
-          "RawInputLight": "1.1.3"
+          "RawInputLight": "1.1.5"
         },
         "runtime": {
           "Test.dll": {}
         }
       },
-      "RawInputLight/1.1.3": {
+      "RawInputLight/1.1.5": {
         "runtime": {
           "RawInputLight.dll": {}
         }
@@ -27,7 +27,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "RawInputLight/1.1.3": {
+    "RawInputLight/1.1.5": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
