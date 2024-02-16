@@ -55,8 +55,8 @@ public static class NativeAPI
                 i * sizeof(RAWINPUTDEVICELIST));
             RAWINPUTDEVICELIST rec = Marshal.PtrToStructure<RAWINPUTDEVICELIST>(recPtr);
             if ((rec.dwType == RID_DEVICE_INFO_TYPE.RIM_TYPEMOUSE) ||
-                (rec.dwType == RID_DEVICE_INFO_TYPE.RIM_TYPEKEYBOARD) ||
-                (rec.dwType == RID_DEVICE_INFO_TYPE.RIM_TYPEHID))
+                (rec.dwType == RID_DEVICE_INFO_TYPE.RIM_TYPEKEYBOARD) /*||
+                (rec.dwType == RID_DEVICE_INFO_TYPE.RIM_TYPEHID)*/  )
             {
                 deviceInfo.AddOrUpdate(rec.hDevice, new DeviceInfo(rec),
                     (handle, info) => info);
