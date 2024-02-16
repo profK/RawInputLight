@@ -30,7 +30,7 @@ public struct DeviceNames
         if (devPath.Contains("{")) devPath = 
             devPath.Substring(0, devPath.IndexOf('{') - 1);
 
-        var device = CfgMgr32.LocateDevNode(devPath, CfgMgr32.LocateDevNodeFlags.Phantom);
+        var device = CfgMgr32.LocateDevNode(devPath, CfgMgr32.LocateDevNodeFlags.Normal);
 
         
         Manufacturer = CfgMgr32.GetDevNodePropertyString(device, in DevicePropertyKey.DeviceManufacturer);
