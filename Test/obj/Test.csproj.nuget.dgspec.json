@@ -1,25 +1,31 @@
 {
   "format": 1,
   "restore": {
-    "D:\\projects\\RiderProjects\\RawInputLight\\Test\\Test.csproj": {}
+    "C:\\temp\\RawInputLight\\Test\\Test.csproj": {}
   },
   "projects": {
-    "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj": {
+    "C:\\temp\\RawInputLight\\RawInputLight\\RawInputLight.csproj": {
       "version": "1.1.5",
       "restore": {
-        "projectUniqueName": "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
+        "projectUniqueName": "C:\\temp\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
         "projectName": "RawInputLight",
-        "projectPath": "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
+        "projectPath": "C:\\temp\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
         "packagesPath": "C:\\Users\\jpkessel\\.nuget\\packages\\",
-        "outputPath": "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\obj\\",
+        "outputPath": "C:\\temp\\RawInputLight\\RawInputLight\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "U:\\pchome\\.pcprefsBAD\\AppData\\NuGet\\NuGet.Config"
+          "U:\\pchome\\.pcprefsBAD\\AppData\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -62,53 +68,45 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[6.0.26, 6.0.26]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[6.0.26, 6.0.26]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[6.0.26, 6.0.26]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\projects\\RiderProjects\\RawInputLight\\Test\\Test.csproj": {
+    "C:\\temp\\RawInputLight\\Test\\Test.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\projects\\RiderProjects\\RawInputLight\\Test\\Test.csproj",
+        "projectUniqueName": "C:\\temp\\RawInputLight\\Test\\Test.csproj",
         "projectName": "Test",
-        "projectPath": "D:\\projects\\RiderProjects\\RawInputLight\\Test\\Test.csproj",
+        "projectPath": "C:\\temp\\RawInputLight\\Test\\Test.csproj",
         "packagesPath": "C:\\Users\\jpkessel\\.nuget\\packages\\",
-        "outputPath": "D:\\projects\\RiderProjects\\RawInputLight\\Test\\obj\\",
+        "outputPath": "C:\\temp\\RawInputLight\\Test\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "U:\\pchome\\.pcprefsBAD\\AppData\\NuGet\\NuGet.Config"
+          "U:\\pchome\\.pcprefsBAD\\AppData\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj": {
-                "projectPath": "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj"
+              "C:\\temp\\RawInputLight\\RawInputLight\\RawInputLight.csproj": {
+                "projectPath": "C:\\temp\\RawInputLight\\RawInputLight\\RawInputLight.csproj"
               }
             }
           }
@@ -133,30 +131,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[6.0.26, 6.0.26]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[6.0.26, 6.0.26]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[6.0.26, 6.0.26]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[6.0.26, 6.0.26]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     }
