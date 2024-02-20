@@ -1,14 +1,17 @@
 {
   "version": 2,
-  "dgSpecHash": "SHUneufj/o3C8h5tP/3mhmrz3R3EeoZ7t7tbYkPh8jHMOSwGR8eyWya6vXiuruUwwiHUKrydnsCWsrhIyPtPmg==",
+  "dgSpecHash": "/l7Nygf00AEJt6/Ksq4VGHrZ5btQuT+8plbjD3sd3wToI/gUZSVQu4ydofbgeN5BH7pa4SK9GRtKrqr93PvoQA==",
   "success": true,
-  "projectFilePath": "C:\\temp\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
+  "projectFilePath": "D:\\projects\\RiderProjects\\RawInputLight\\RawInputLight\\RawInputLight.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.net.compilers.toolset\\4.1.0-1.final\\microsoft.net.compilers.toolset.4.1.0-1.final.nupkg.sha512",
     "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.windows.cswin32\\0.1.619-beta\\microsoft.windows.cswin32.0.1.619-beta.nupkg.sha512",
     "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.windows.sdk.win32docs\\0.1.7-alpha\\microsoft.windows.sdk.win32docs.0.1.7-alpha.nupkg.sha512",
     "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.windows.sdk.win32metadata\\15.0.2-preview\\microsoft.windows.sdk.win32metadata.15.0.2-preview.nupkg.sha512",
-    "C:\\Users\\jpkessel\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512"
+    "C:\\Users\\jpkessel\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
+    "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.26\\microsoft.netcore.app.ref.6.0.26.nupkg.sha512",
+    "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.26\\microsoft.windowsdesktop.app.ref.6.0.26.nupkg.sha512",
+    "C:\\Users\\jpkessel\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.26\\microsoft.aspnetcore.app.ref.6.0.26.nupkg.sha512"
   ],
   "logs": []
 }

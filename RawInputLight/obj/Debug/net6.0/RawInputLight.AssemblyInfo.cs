@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RawInputLight")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6cbea865cc10c07340fb644c5ae26a12345ed08b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+46fd79d4785b70b0ff2645a450c73bd15ed8cb89")]
 [assembly: System.Reflection.AssemblyProductAttribute("RawInputLight")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RawInputLight")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
